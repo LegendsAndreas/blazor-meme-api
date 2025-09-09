@@ -1,0 +1,9 @@
+bin/
+obj/
+.vs
+.env
+.vscode
+.idea
+BlazorApi/appsettings.json
+BlazorApi/appsettings.Development.json
+API/Logs

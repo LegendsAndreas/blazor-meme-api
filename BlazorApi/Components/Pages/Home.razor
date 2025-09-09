@@ -1,0 +1,139 @@
+﻿@page "/"
+@using BlazorApi.Models
+@using BlazorApi.Services
+@rendermode InteractiveServer
+@inject IJSRuntime JS
+@inject ApiService Api
+@inject StorageService Storage
+
+<div class="row">
+    <div class="col-12 d-flex justify-content-center my-1">
+        <EditForm Model="@_registerDto" OnValidSubmit="RegisterUser">
+            <DataAnnotationsValidator/>
+            <ValidationSummary/>
+            <div>
+                <label>
+                    Email
+                </label>
+                <InputText @bind-Value="_registerDto.Email" class="form-control" style="width: unset"></InputText>
+            </div>
+            <div>
+                <label>
+                    Password
+                </label>
+                <InputText @bind-Value="_registerDto.Password" class="form-control" style="width: unset"></InputText>
+            </div>
+            <div>
+                <label>
+                    Repeated Password
+                </label>
+                <InputText @bind-Value="_registerDto.ConfirmPassword" class="form-control" style="width: unset"></InputText>
+            </div>
+            <button class="btn btn-primary" type="submit">Register</button>
+        </EditForm>
+    </div>
+    <div class="col-12 d-flex justify-content-center my-1">
+        <EditForm Model="@_logOnDto" OnValidSubmit="LogInUser">
+            <DataAnnotationsValidator/>
+            <ValidationSummary/>
+            <div>
+                <label>
+                    Email
+                </label>
+                <InputText @bind-Value="_logOnDto.email" class="form-control" style="width: unset"></InputText>
+            </div>
+            <div>
+                <label>
+                    Password
+                </label>
+                <InputText @bind-Value="_logOnDto.password" class="form-control" style="width: unset"></InputText>
+            </div>
+            <button class="btn btn-primary" type="submit">Login</button>
+        </EditForm>
+    </div>
+    <div class="col-12 d-flex justify-content-center my-1">
+        <InputText @bind-Value="@_uploadMemeName" class="form-control" style="width: unset" placeholder="Name..."/>
+
+        <InputFile OnChange="OnInputFileChange" accept="image/*,video/*" id="uploadMemeInput" style="display:none"/>
+        <label for="uploadMemeInput" class="btn btn-warning">
+            Upload meme
+        </label>
+    </div>
+    <div class="col-12 d-flex justify-content-center my-1">
+        <InputText @bind-Value="_downloadMemeName" class="form-control" style="width: unset" placeholder="Name..."/>
+        <button class="btn btn-primary" @onclick="Test">Download meme</button>
+    </div>
+    <div class="col-12 d-flex justify-content-center my-1">
+        <InputNumber @bind-Value="_deleteMemeId" class="form-control" style="width: unset" placeholder="ID..."/>
+        <button class="btn btn-danger" @onclick="DeleteMeme">Delete meme (ID)</button>
+    </div>
+</div>
+<button class="btn btn-primary" @onclick="Time">Time</button>
+
+@if (!string.IsNullOrEmpty(_alertMessage))
+{
+    <div class="alert alert-success" role="alert">
+        @_alertMessage
+    </div>
+}
+
+@code {
+    private string _uploadMemeName = string.Empty;
+    private string _downloadMemeName = string.Empty;
+    private string _alertMessage;
+    private int _deleteMemeId;
+    private TimeService _timeService = new();
+    private User.RegisterDto _registerDto = new();
+    private User.LogOnDto _logOnDto = new();
+
+    private void Time()
+    {
+        Console.WriteLine("Time: " + _timeService.GetCopenhagenUtcDateTime());
+    }
+
+    private async Task OnInputFileChange(InputFileChangeEventArgs e)
+    {
+        if (_uploadMemeName == "")
+        {
+            await JS.InvokeVoidAsync("alert", "No name given for meme");
+            return;
+        }
+
+        var file = e.File;
+        Console.WriteLine($"Selected: {file.Name} ({file.ContentType}), {file.Size} bytes");
+
+        try
+        {
+            var result = await Api.UploadMemeAsync(e.File, _uploadMemeName);
+            await JS.InvokeVoidAsync("alert", result);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            return;
+        }
+    }
+
+    private async Task RegisterUser()
+    {
+        var result = await Api.RegisterUser(_registerDto);
+        await JS.InvokeVoidAsync("alert", result);
+    }
+
+    private async Task LogInUser()
+    {
+        
+    }
+
+    private async Task DeleteMeme()
+    {
+        var result = await Api.DeleteMemeAsync(_deleteMemeId);
+        await JS.InvokeVoidAsync("alert", result);
+    }
+
+    private async Task Test()
+    {
+        await Storage.SaveItemToLocalStorageAsync("Test", "piss");
+    }
+
+}

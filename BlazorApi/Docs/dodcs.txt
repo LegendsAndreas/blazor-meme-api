@@ -1,0 +1,2 @@
+dotnet ef migrations add [MESSAGE]
+dotnet ef database update
