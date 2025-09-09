@@ -16,10 +16,12 @@ namespace BlazorApi.Controllers
     public class UsersController : ControllerBase
     {
         private readonly AppDBContext _context;
+        private readonly JwtService _jwtService;
 
-        public UsersController(AppDBContext context)
+        public UsersController(AppDBContext context, JwtService jwtService)
         {
             _context = context;
+            _jwtService = jwtService;
         }
 
         // GET: api/Users
@@ -27,6 +29,35 @@ namespace BlazorApi.Controllers
         public async Task<ActionResult<IEnumerable<User>>> GetUsers()
         {
             return await _context.Users.ToListAsync();
+        }
+
+        // Send it from the body as raw JSON variables in Postman.
+        [HttpPost]
+        [Route("login")]
+        public async Task<IActionResult> Login([FromBody]User.LogOnDto dto)
+        {
+            if (string.IsNullOrEmpty(dto.email)) return BadRequest("Email is not sent");
+            if (string.IsNullOrEmpty(dto.password)) return BadRequest("Password is not sent");
+
+            User? user = await _context.Users
+                .Include(u => u.Roles)
+                .FirstOrDefaultAsync(u => u.Email == dto.email);
+
+            if (user == null) return BadRequest($"User not found with email '{dto.email}'");
+            if (!BCrypt.Net.BCrypt.Verify(dto.password, user.HashedPassword))
+                return BadRequest("Password is incorrect");
+            
+            TimeService timeHelper = new TimeService();
+            user.LastLogin = timeHelper.GetCopenhagenUtcDateTime();
+            await _context.SaveChangesAsync();
+
+            string token = _jwtService.GenerateToken(user);
+
+            return Ok(new
+            {
+                message = "Login successful!",
+                token
+            });
         }
 
         // GET: api/Users/5
@@ -80,7 +111,6 @@ namespace BlazorApi.Controllers
         [Route("register")]
         public async Task<ActionResult<User>> PostUser([FromBody] User.RegisterDto dto)
         {
-            
             if (_context.Users.Any(u => u.Email == dto.Email))
                 return BadRequest("A user with this email already exists.");
 

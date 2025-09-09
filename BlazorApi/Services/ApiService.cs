@@ -13,7 +13,7 @@ public class ApiService
         _httpClient = httpClient;
     }
 
-    public async Task<string> UploadMemeAsync(IBrowserFile file, string name)
+    public async Task<string> UploadMemeAsync(IBrowserFile file, string name, string jwtToken)
     {
         try
         {
@@ -27,12 +27,15 @@ public class ApiService
 
             // Create file content
             var fileContent = new ByteArrayContent(ms.ToArray());
-            fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(file.ContentType);
+            fileContent.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
 
             content.Add(fileContent, "file", file.Name);
+            // Create HttpRequestMessage to set Authorization header
+            using var request = new HttpRequestMessage(HttpMethod.Post, $"memes/upload?name={name}");
+            request.Content = content;
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", jwtToken);
 
-            var response = await _httpClient.PostAsync($"memes/upload?name={name}", content);
-
+            var response = await _httpClient.SendAsync(request);
 
             if (response.IsSuccessStatusCode)
             {
@@ -48,15 +51,19 @@ public class ApiService
         }
     }
 
-    public async Task<string> DeleteMemeAsync(int id)
+    public async Task<string> DeleteMemeAsync(int id, string jwtToken)
     {
         try
         {
-            var response = await _httpClient.DeleteAsync($"memes/delete?id={id}");
+            using var request = new HttpRequestMessage(HttpMethod.Delete, $"memes/delete?id={id}");
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", jwtToken);
+
+            var response = await _httpClient.SendAsync(request);
             if (!response.IsSuccessStatusCode)
             {
-                return "Deleting meme was not successful: " + response.ReasonPhrase + response.Content.ReadAsStringAsync().Result;
+                return "Deleting meme was not successful: " + response.ReasonPhrase + await response.Content.ReadAsStringAsync();
             }
+
         }
         catch (Exception ex)
         {
@@ -90,5 +97,31 @@ public class ApiService
         }
         
         return "User created!";
+    }
+
+    public async Task<(string msg, string? token)> LoginUserAsync(string email, string password)
+    {
+        try
+        {
+            var response = await _httpClient.PostAsJsonAsync("Users/login", new
+            {
+                email,
+                password
+            });
+
+            if (response.IsSuccessStatusCode)
+            {
+                var loginResponse = await response.Content.ReadFromJsonAsync<User.LoginResponseDto>();
+                if (loginResponse == null) return ("Error logging in user: Login response is null", null);
+                return (loginResponse.message, loginResponse.token);
+            }
+            
+            return ("Error logging in user: " + response.ReasonPhrase, null);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            return ("Error logging in user: " + ex.Message, null);
+        }
     }
 }

@@ -34,6 +34,17 @@ public class AppDBContext : DbContext
                 .OnDelete(DeleteBehavior.Restrict);
         });
         
+        // Configure MemesTags
+        modelBuilder.Entity<MemesTags>()
+            .HasOne(mt => mt.Meme)
+            .WithMany(mt => mt.MemesTags)
+            .HasForeignKey(mt => mt.MemeId);
+
+        modelBuilder.Entity<MemesTags>()
+            .HasOne(mt => mt.Tag)
+            .WithMany(mt => mt.MemesTags)
+            .HasForeignKey(mt => mt.TagId);
+        
         SeedRoles(modelBuilder);
     }
 

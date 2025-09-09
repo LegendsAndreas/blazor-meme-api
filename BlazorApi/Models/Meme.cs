@@ -14,6 +14,7 @@ public class Meme
     [StringLength(255)]
     public string MimeType { get; set; } = string.Empty;
     public required byte[] FileData { get; set; }
+    public ICollection<MemesTags> MemesTags { get; set; } = new List<MemesTags>();
     
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }

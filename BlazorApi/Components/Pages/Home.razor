@@ -6,69 +6,151 @@
 @inject ApiService Api
 @inject StorageService Storage
 
-<div class="row">
-    <div class="col-12 d-flex justify-content-center my-1">
-        <EditForm Model="@_registerDto" OnValidSubmit="RegisterUser">
-            <DataAnnotationsValidator/>
-            <ValidationSummary/>
-            <div>
-                <label>
-                    Email
-                </label>
-                <InputText @bind-Value="_registerDto.Email" class="form-control" style="width: unset"></InputText>
-            </div>
-            <div>
-                <label>
-                    Password
-                </label>
-                <InputText @bind-Value="_registerDto.Password" class="form-control" style="width: unset"></InputText>
-            </div>
-            <div>
-                <label>
-                    Repeated Password
-                </label>
-                <InputText @bind-Value="_registerDto.ConfirmPassword" class="form-control" style="width: unset"></InputText>
-            </div>
-            <button class="btn btn-primary" type="submit">Register</button>
-        </EditForm>
-    </div>
-    <div class="col-12 d-flex justify-content-center my-1">
-        <EditForm Model="@_logOnDto" OnValidSubmit="LogInUser">
-            <DataAnnotationsValidator/>
-            <ValidationSummary/>
-            <div>
-                <label>
-                    Email
-                </label>
-                <InputText @bind-Value="_logOnDto.email" class="form-control" style="width: unset"></InputText>
-            </div>
-            <div>
-                <label>
-                    Password
-                </label>
-                <InputText @bind-Value="_logOnDto.password" class="form-control" style="width: unset"></InputText>
-            </div>
-            <button class="btn btn-primary" type="submit">Login</button>
-        </EditForm>
-    </div>
-    <div class="col-12 d-flex justify-content-center my-1">
-        <InputText @bind-Value="@_uploadMemeName" class="form-control" style="width: unset" placeholder="Name..."/>
+<style>
+    body {
+        background-color: #00ffff;
+    }
 
-        <InputFile OnChange="OnInputFileChange" accept="image/*,video/*" id="uploadMemeInput" style="display:none"/>
-        <label for="uploadMemeInput" class="btn btn-warning">
-            Upload meme
-        </label>
+    .download-card {
+        border: 1px solid gray;
+        border-radius: 5px;
+        padding: 10px;
+        margin: 10px;
+        background-color: #00d3d3;
+
+        label, button {
+            margin-bottom: 10px;
+        }
+    }
+</style>
+
+<h1 style="justify-self: center">The Retard Cube</h1>
+
+<div class="row justify-content-center">
+    <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
+        <div class="download-card">
+            <label for="uploadMemeInput" class="btn btn-warning">
+                Upload meme
+            </label>
+            <InputText @bind-Value="@_uploadMemeName" class="form-control" style="width: unset" placeholder="Name..."/>
+
+            <InputFile OnChange="OnInputFileChange" accept="image/*,video/*" id="uploadMemeInput" style="display:none"/>
+        </div>
     </div>
-    <div class="col-12 d-flex justify-content-center my-1">
-        <InputText @bind-Value="_downloadMemeName" class="form-control" style="width: unset" placeholder="Name..."/>
-        <button class="btn btn-primary" @onclick="Test">Download meme</button>
+    <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
+        <div class="download-card">
+            <button class="btn btn-primary" @onclick="Test">Download meme</button>
+            <InputText @bind-Value="_downloadMemeName" class="form-control" style="width: unset" placeholder="Name..."/>
+        </div>
     </div>
-    <div class="col-12 d-flex justify-content-center my-1">
-        <InputNumber @bind-Value="_deleteMemeId" class="form-control" style="width: unset" placeholder="ID..."/>
-        <button class="btn btn-danger" @onclick="DeleteMeme">Delete meme (ID)</button>
+    <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
+        <div class="download-card">
+            <button class="btn btn-danger" @onclick="DeleteMeme">Delete meme (ID)</button>
+            <InputNumber @bind-Value="_deleteMemeId" class="form-control" style="width: unset" placeholder="ID..."/>
+        </div>
+    </div>
+    <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
+        <div class="download-card">
+            <EditForm Model="@_registerDto" OnValidSubmit="RegisterUser">
+                <DataAnnotationsValidator/>
+                <ValidationSummary/>
+                <div>
+                    <label>
+                        Email
+                    </label>
+                    <InputText @bind-Value="_registerDto.Email" class="form-control" style="width: unset"></InputText>
+                </div>
+                <div>
+                    <label>
+                        Password
+                    </label>
+                    <InputText @bind-Value="_registerDto.Password" class="form-control"
+                               style="width: unset"></InputText>
+                </div>
+                <div>
+                    <label>
+                        Repeated Password
+                    </label>
+                    <InputText @bind-Value="_registerDto.ConfirmPassword" class="form-control"
+                               style="width: unset"></InputText>
+                </div>
+                <button class="btn btn-primary mt-2" type="submit">Register</button>
+            </EditForm>
+        </div>
+    </div>
+    <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
+        <div class="download-card">
+            <EditForm Model="@_logOnDto" OnValidSubmit="LogInUser">
+                <DataAnnotationsValidator/>
+                <ValidationSummary/>
+                <div>
+                    <label>
+                        Email
+                    </label>
+                    <InputText @bind-Value="_logOnDto.email" class="form-control" style="width: unset"></InputText>
+                </div>
+                <div>
+                    <label>
+                        Password
+                    </label>
+                    <InputText @bind-Value="_logOnDto.password" class="form-control" style="width: unset"
+                               type="password"></InputText>
+                </div>
+                @if (_loadingLogin)
+                {
+                    <Loading/>
+                }
+                else
+                {
+                    <button class="btn btn-primary mt-2" type="submit">Login</button>
+                }
+            </EditForm>
+        </div>
+    </div>
+    <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
+        
     </div>
 </div>
-<button class="btn btn-primary" @onclick="Time">Time</button>
+<div class="row">
+    <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6">
+        <div class="download-card">
+            <h2>Memes</h2>
+            <div class="row">
+                <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
+                    Total memes: @_totalMemes
+                </div>
+                <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
+                    JPGs: @_totalPics
+                </div>
+                <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
+                    WEBPs: @_totalPics
+                </div>
+                <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
+                    Videos: @_totalVideos
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6">
+        <div class="download-card">
+            <h2>Tags</h2>
+            <div class="row">
+                <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
+                    Total tags: @_totalTags
+                </div>
+                <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
+                    1st: @_mostUsedTag
+                </div>
+                <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
+                    2nd: @_secondMostUsedTag
+                </div>
+                <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
+                    3rd: @_thirdMostUsedTag
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 @if (!string.IsNullOrEmpty(_alertMessage))
 {
@@ -82,14 +164,19 @@
     private string _downloadMemeName = string.Empty;
     private string _alertMessage;
     private int _deleteMemeId;
+    private bool _loadingLogin;
     private TimeService _timeService = new();
     private User.RegisterDto _registerDto = new();
     private User.LogOnDto _logOnDto = new();
 
-    private void Time()
-    {
-        Console.WriteLine("Time: " + _timeService.GetCopenhagenUtcDateTime());
-    }
+    private int _totalMemes;
+    private int _totalPics;
+    private int _totalVideos;
+
+    private int _totalTags;
+    private int _mostUsedTag;
+    private int _secondMostUsedTag;
+    private int _thirdMostUsedTag;
 
     private async Task OnInputFileChange(InputFileChangeEventArgs e)
     {
@@ -104,7 +191,15 @@
 
         try
         {
-            var result = await Api.UploadMemeAsync(e.File, _uploadMemeName);
+            string? token = await Storage.GetItemFromLocalStorageAsync("authToken");
+
+            if (string.IsNullOrEmpty(token))
+            {
+                await JS.InvokeVoidAsync("alert", "No auth token found");
+                return;
+            }
+
+            var result = await Api.UploadMemeAsync(e.File, _uploadMemeName, token);
             await JS.InvokeVoidAsync("alert", result);
         }
         catch (Exception ex)
@@ -122,12 +217,35 @@
 
     private async Task LogInUser()
     {
-        
+        Console.WriteLine("Password: " + _logOnDto.password);
+        _loadingLogin = true;
+        StateHasChanged();
+        var result = await Api.LoginUserAsync(_logOnDto.email, _logOnDto.password);
+
+        if (result.token == null)
+        {
+            await JS.InvokeVoidAsync("alert", "Token was null: " + result.msg);
+            _loadingLogin = false;
+            StateHasChanged();
+            return;
+        }
+
+        await Storage.SaveItemToLocalStorageAsync("authToken", result.token);
+        _loadingLogin = false;
+        StateHasChanged();
     }
 
     private async Task DeleteMeme()
     {
-        var result = await Api.DeleteMemeAsync(_deleteMemeId);
+        string? token = await Storage.GetItemFromLocalStorageAsync("authToken");
+
+        if (string.IsNullOrEmpty(token))
+        {
+            await JS.InvokeVoidAsync("alert", "No auth token found");
+            return;
+        }
+
+        var result = await Api.DeleteMemeAsync(_deleteMemeId, token);
         await JS.InvokeVoidAsync("alert", result);
     }
 

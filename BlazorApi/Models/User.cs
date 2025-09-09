@@ -37,4 +37,9 @@ public class User
         [Compare("Password", ErrorMessage = "Passwords do not match")]
         public string ConfirmPassword { get; set; } = string.Empty;
     }
+    public class LoginResponseDto
+    {
+        public string message { get; set; }
+        public string token { get; set; }
+    }
 }

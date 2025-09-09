@@ -55,6 +55,7 @@ public class MemesController : ControllerBase
     // /upload?name=forspoken
     [HttpPost]
     [Route("upload")]
+    [Authorize(Roles="Admin")]
     public async Task<IActionResult> Upload([FromForm] IFormFile? file, string? name)
     {
         if (file == null || file.Length < 1) return BadRequest(new { message = "No file uploaded." });
@@ -65,7 +66,6 @@ public class MemesController : ControllerBase
             return BadRequest(new { message = "Meme name already exists." });
 
         
-
         Meme tempMeme = new Meme
         {
             Name = name,
@@ -101,8 +101,8 @@ public class MemesController : ControllerBase
     // /memes/delete?id=5
     [HttpDelete]
     [Route("delete")]
-    // [Authorize(Roles = "Admin")]
-    private async Task<IActionResult> DeleteMeme(int id)
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> DeleteMeme(int id)
     {
         Meme? meme = await _context.Memes.FirstOrDefaultAsync(m => m.Id == id);
         if (meme == null) return NotFound(new { message = "Meme not found or has already been deleted." });
@@ -136,10 +136,5 @@ public class MemesController : ControllerBase
         using var ms = new MemoryStream();
         file.CopyTo(ms);
         return ms.ToArray();
-    }
-
-    private bool AuthenticateUser()
-    {
-        return true;
     }
 }
