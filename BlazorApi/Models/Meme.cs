@@ -19,3 +19,14 @@ public class Meme
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
 }
+
+public class UploadMemeDto
+{
+    [Required]
+    public IFormFile File { get; set; }
+
+    [Required]
+    public string Name { get; set; }
+
+    public List<string> Tags { get; set; } = new();
+}

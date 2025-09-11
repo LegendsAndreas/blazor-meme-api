@@ -1,2 +1,4 @@
 dotnet ef migrations add [MESSAGE]
 dotnet ef database update
+
+The tags table came out as Tag and not Tags.

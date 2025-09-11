@@ -33,8 +33,16 @@
                 Upload meme
             </label>
             <InputText @bind-Value="@_uploadMemeName" class="form-control" style="width: unset" placeholder="Name..."/>
-
             <InputFile OnChange="OnInputFileChange" accept="image/*,video/*" id="uploadMemeInput" style="display:none"/>
+            
+            <button class="btn btn-warning mt-2" @onclick="AddTagToTags">Add tag</button>
+            <InputText @bind-Value="_currentTag" class="form-control" style="width: unset" placeholder="Tag..."/>
+            <div>
+                @foreach (string tag in _tags)
+                {
+                    <p>@tag</p>
+                }
+            </div>
         </div>
     </div>
     <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
@@ -165,9 +173,11 @@
     private string _alertMessage;
     private int _deleteMemeId;
     private bool _loadingLogin;
+    private string _currentTag = string.Empty;
     private TimeService _timeService = new();
     private User.RegisterDto _registerDto = new();
     private User.LogOnDto _logOnDto = new();
+    private List<string> _tags = [];
 
     private int _totalMemes;
     private int _totalPics;
@@ -199,7 +209,7 @@
                 return;
             }
 
-            var result = await Api.UploadMemeAsync(e.File, _uploadMemeName, token);
+            var result = await Api.UploadMemeAsync(e.File, _tags, _uploadMemeName, token);
             await JS.InvokeVoidAsync("alert", result);
         }
         catch (Exception ex)
@@ -247,6 +257,11 @@
 
         var result = await Api.DeleteMemeAsync(_deleteMemeId, token);
         await JS.InvokeVoidAsync("alert", result);
+    }
+
+    private void AddTagToTags()
+    {
+        _tags.Add(_currentTag);
     }
 
     private async Task Test()

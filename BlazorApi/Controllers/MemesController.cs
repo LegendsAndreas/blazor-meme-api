@@ -56,33 +56,85 @@ public class MemesController : ControllerBase
     [HttpPost]
     [Route("upload")]
     [Authorize(Roles="Admin")]
-    public async Task<IActionResult> Upload([FromForm] IFormFile? file, string? name)
+    public async Task<IActionResult> Upload([FromForm] UploadMemeDto dto)
     {
-        if (file == null || file.Length < 1) return BadRequest(new { message = "No file uploaded." });
+        if (dto.File.Length < 1) return BadRequest(new { message = "No file uploaded." });
 
-        if (string.IsNullOrEmpty(name)) return BadRequest(new { message = "No name provided." });
+        if (string.IsNullOrEmpty(dto.Name)) return BadRequest(new { message = "No name provided." });
 
-        if (await _context.Memes.AnyAsync(m => m.Name == name))
+        if (await _context.Memes.AnyAsync(m => m.Name == dto.Name))
             return BadRequest(new { message = "Meme name already exists." });
 
         
         Meme tempMeme = new Meme
         {
-            Name = name,
-            Extension = Path.GetExtension(file.FileName),
-            MimeType = file.ContentType,
-            FileData = GetFileBytes(file)
+            Name = dto.Name,
+            Extension = Path.GetExtension(dto.File.FileName),
+            MimeType = dto.File.ContentType,
+            FileData = GetFileBytes(dto.File)
         };
 
         try
         {
             _context.Memes.Add(tempMeme);
+            // We save early, to get the ID of the newly created meme. The ID will automatically be set in "tempMeme"
+            await _context.SaveChangesAsync();
+
+            // Adds all the tags, that are not null/empty, trims them and lowers them. Also keeps them distinct.
+            var normalizedTags = dto.Tags?
+                .Where(t => !string.IsNullOrWhiteSpace(t))
+                .Select(t => t.Trim().ToLowerInvariant()).Distinct().ToList() ?? new List<string>();
+
+            // Get all tags from db that match the normalized tags.
+            var tagsInDb = await _context.Tags
+                .Where(t => normalizedTags.Contains(t.Name.ToLower()))
+                .ToListAsync();
+
+            // Meant for adding the tags not found in the DB.
+            var missingTagNames = normalizedTags
+                .Except(tagsInDb.Select(t => t.Name.ToLower()))
+                .ToList();
+
+            // Creates new tags, based on the missing tags.
+            var newTags = missingTagNames.Select(n =>
+                new Tag
+                {
+                    Name = n,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                }).ToList();
+
+            // Saves the newly (if any) created tags to the DB and adds tags to the tagsInDb for use in adding a relation
+            // to the actual memes and tags.
+            if (newTags.Any())
+            {
+                await _context.Tags.AddRangeAsync(newTags);
+                await _context.SaveChangesAsync();
+                tagsInDb.AddRange(newTags);
+            }
+
+            // Actually selects the tags from the DB
+            var memesTags = tagsInDb.Select(tag => new MemesTags
+            {
+                MemeId = tempMeme.Id,
+                TagId = tag.Id,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            }).ToList();
+
+            // Finally, adds relations of memes and tags to the DB.
+            if (memesTags.Any())
+            {
+                await _context.MemesTags.AddRangeAsync(memesTags);
+                await _context.SaveChangesAsync();
+            }
+            
             await _context.SaveChangesAsync();
         }
         catch (Exception ex)
         {
             Console.WriteLine(ex);
-            return StatusCode(500, new { message = "Something went wrong." });
+            return StatusCode(500, "Something went wrong uploading the meme: " + ex.Message);
         }
 
         return Ok(new

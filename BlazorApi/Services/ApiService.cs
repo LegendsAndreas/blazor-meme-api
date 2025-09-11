@@ -13,36 +13,35 @@ public class ApiService
         _httpClient = httpClient;
     }
 
-    public async Task<string> UploadMemeAsync(IBrowserFile file, string name, string jwtToken)
+    public async Task<string> UploadMemeAsync(IBrowserFile file, List<string> tags, string name, string jwtToken)
     {
+        if (tags.Count < 1) return "No tags provided!";
+        
         try
         {
             using var content = new MultipartFormDataContent();
-
-            // Read file content to stream
-            var stream = file.OpenReadStream(maxAllowedSize: 10_000_000); // 10 MB max
+            using var stream = file.OpenReadStream(maxAllowedSize: 10_000_000);
             using var ms = new MemoryStream();
             await stream.CopyToAsync(ms);
-            ms.Position = 0;
 
-            // Create file content
             var fileContent = new ByteArrayContent(ms.ToArray());
             fileContent.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
 
-            content.Add(fileContent, "file", file.Name);
-            // Create HttpRequestMessage to set Authorization header
-            using var request = new HttpRequestMessage(HttpMethod.Post, $"memes/upload?name={name}");
+            content.Add(fileContent, "File", file.Name);
+            content.Add(new StringContent(name), "Name");
+
+            foreach (var tag in tags)
+                content.Add(new StringContent(tag), "Tags");
+
+            using var request = new HttpRequestMessage(HttpMethod.Post, "memes/upload");
             request.Content = content;
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", jwtToken);
 
             var response = await _httpClient.SendAsync(request);
 
-            if (response.IsSuccessStatusCode)
-            {
-                return "New meme uploaded!";
-            }
+            if (response.IsSuccessStatusCode) return "New meme uploaded!";
 
-            return response.Content.ReadAsStringAsync().Result;
+            return await response.Content.ReadAsStringAsync();
         }
         catch (Exception ex)
         {
@@ -61,16 +60,16 @@ public class ApiService
             var response = await _httpClient.SendAsync(request);
             if (!response.IsSuccessStatusCode)
             {
-                return "Deleting meme was not successful: " + response.ReasonPhrase + await response.Content.ReadAsStringAsync();
+                return "Deleting meme was not successful: " + response.ReasonPhrase +
+                       await response.Content.ReadAsStringAsync();
             }
-
         }
         catch (Exception ex)
         {
             Console.WriteLine("Error deleting message: " + ex.Message);
             return "Error deleting meme: " + ex.Message;
         }
-        
+
         return "Meme deleted!";
     }
 
@@ -87,7 +86,8 @@ public class ApiService
 
             if (!response.IsSuccessStatusCode)
             {
-                return "Registering user was not successful: " + response.ReasonPhrase + response.Content.ReadAsStringAsync().Result;
+                return "Registering user was not successful: " + response.ReasonPhrase +
+                       response.Content.ReadAsStringAsync().Result;
             }
         }
         catch (Exception ex)
@@ -95,7 +95,7 @@ public class ApiService
             Console.WriteLine("Error registering user: " + ex.Message);
             return "Error registering user: " + ex.Message;
         }
-        
+
         return "User created!";
     }
 
@@ -115,7 +115,7 @@ public class ApiService
                 if (loginResponse == null) return ("Error logging in user: Login response is null", null);
                 return (loginResponse.message, loginResponse.token);
             }
-            
+
             return ("Error logging in user: " + response.ReasonPhrase, null);
         }
         catch (Exception ex)
