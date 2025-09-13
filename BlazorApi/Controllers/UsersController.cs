@@ -11,7 +11,7 @@ using BlazorApi.Services;
 
 namespace BlazorApi.Controllers
 {
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     [ApiController]
     public class UsersController : ControllerBase
     {

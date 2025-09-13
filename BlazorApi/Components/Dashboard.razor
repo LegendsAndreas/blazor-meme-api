@@ -1,0 +1,54 @@
+﻿
+<div class="row">
+    <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6">
+        <div class="download-card">
+            <h2>Memes</h2>
+            <div class="row">
+                <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
+                    Total memes: @_totalMemes
+                </div>
+                <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
+                    JPGs: @_totalPics
+                </div>
+                <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
+                    WEBPs: @_totalPics
+                </div>
+                <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
+                    Videos: @_totalVideos
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6">
+        <div class="download-card">
+            <h2>Tags</h2>
+            <div class="row">
+                <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
+                    Total tags: @_totalTags
+                </div>
+                <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
+                    1st: @_mostUsedTag
+                </div>
+                <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
+                    2nd: @_secondMostUsedTag
+                </div>
+                <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
+                    3rd: @_thirdMostUsedTag
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@code {
+
+    
+    private int _totalMemes;
+    private int _totalPics;
+    private int _totalVideos;
+
+    private int _totalTags;
+    private int _mostUsedTag;
+    private int _secondMostUsedTag;
+    private int _thirdMostUsedTag;
+
+}

@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace BlazorApi.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("api/[controller]")]
 public class MemesController : ControllerBase
 {
     private readonly AppDBContext _context;

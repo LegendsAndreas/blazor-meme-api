@@ -73,7 +73,7 @@ public class Program
                 {
                     policyBuilder
                         .WithOrigins(
-                            Configuration.GetConnectionString("Origin")
+                            Configuration["Origin"]
                         )
                         .AllowAnyMethod()
                         .AllowAnyHeader()
@@ -88,7 +88,7 @@ public class Program
         builder.Services.AddControllers();
         builder.Services.AddHttpClient<ApiService>(client =>
         {
-            client.BaseAddress = new Uri("https://localhost:5273/");
+            client.BaseAddress = new Uri("https://localhost:5273/api/");
             Console.WriteLine($"APIService BaseAddress: {client.BaseAddress}");
         });
 
