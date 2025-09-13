@@ -30,3 +30,13 @@ public class UploadMemeDto
 
     public List<string> Tags { get; set; } = new();
 }
+
+public class MemesStatsDto
+{
+    public int MemesCount { get; set; }
+    public int JpgCount { get; set; }
+    public int PngCount { get; set; }
+    public int GifCount { get; set; }
+    public int WebpCount { get; set; }
+    public int VideosCount { get; set; }
+}

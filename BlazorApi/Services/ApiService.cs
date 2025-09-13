@@ -16,7 +16,7 @@ public class ApiService
     public async Task<string> UploadMemeAsync(IBrowserFile file, List<string> tags, string name, string jwtToken)
     {
         if (tags.Count < 1) return "No tags provided!";
-        
+
         try
         {
             using var content = new MultipartFormDataContent();
@@ -122,6 +122,46 @@ public class ApiService
         {
             Console.WriteLine(ex);
             return ("Error logging in user: " + ex.Message, null);
+        }
+    }
+
+    public async Task<(string msg, MemesStatsDto? memeStats)> GetMemeStatsAsync()
+    {
+        try
+        {
+            var response = await _httpClient.GetAsync("memes/stats");
+            if (response.IsSuccessStatusCode)
+            {
+                var memeStats = await response.Content.ReadFromJsonAsync<MemesStatsDto>();
+                return ("Successfully gotten meme stats!", memeStats);
+            }
+
+            return ("Error getting meme stats: " + response.ReasonPhrase, null);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            return ("Exception caught getting meme stats", null );
+        }
+    }
+
+    public async Task<(string msg, TagsStatsDto? tagStats)> GetTagsStatsAsync()
+    {
+        try
+        {
+            var response = await _httpClient.GetAsync("tags/stats");
+            if (response.IsSuccessStatusCode)
+            {
+                var tagsStats = await response.Content.ReadFromJsonAsync<TagsStatsDto>();
+                return ("Successfully gotten meme stats!", tagsStats);
+            }
+
+            return ("Error getting tags stats: " + response.ReasonPhrase, null);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            return ("Generel exception caught getting tags stats", null );
         }
     }
 }

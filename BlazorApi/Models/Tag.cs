@@ -11,3 +11,8 @@ public class Tag
     public DateTime UpdatedAt { get; set; }
     public ICollection<MemesTags> MemesTags { get; set; } = new List<MemesTags>();
 }
+
+public class TagsStatsDto
+{
+    public int TagCount { get; set; }
+}

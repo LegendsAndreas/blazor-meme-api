@@ -39,6 +39,32 @@ public class MemesController : ControllerBase
         return File(meme.FileData, meme.MimeType, meme.Name + meme.Extension);
     }
 
+    [HttpGet]
+    [Route("stats")]
+    public async Task<IActionResult> GetMemeStats()
+    {
+        var memes = await _context.Memes.ToListAsync();
+
+        try
+        {
+            MemesStatsDto memeStats = new MemesStatsDto
+            {
+                MemesCount = memes.Count,
+                GifCount = memes.Count(m => m.Extension == ".gif"),
+                JpgCount = memes.Count(m => m.Extension == ".jpg" || m.Extension == ".jpeg"),
+                PngCount = memes.Count(m => m.Extension == ".png"),
+                VideosCount = memes.Count(m => m.Extension == ".mp4" || m.Extension == ".webm"),
+                WebpCount = memes.Count(m => m.Extension == ".webp")
+            };
+            return Ok(memeStats);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            return StatusCode(500, "Internal server error getting memes stats: " + ex.Message);
+        }
+    }
+
 
     [HttpPost]
     [Route("init")]
@@ -55,7 +81,7 @@ public class MemesController : ControllerBase
     // /upload?name=forspoken
     [HttpPost]
     [Route("upload")]
-    [Authorize(Roles="Admin")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Upload([FromForm] UploadMemeDto dto)
     {
         if (dto.File.Length < 1) return BadRequest(new { message = "No file uploaded." });
@@ -65,7 +91,7 @@ public class MemesController : ControllerBase
         if (await _context.Memes.AnyAsync(m => m.Name == dto.Name))
             return BadRequest(new { message = "Meme name already exists." });
 
-        
+
         Meme tempMeme = new Meme
         {
             Name = dto.Name,
@@ -128,7 +154,7 @@ public class MemesController : ControllerBase
                 await _context.MemesTags.AddRangeAsync(memesTags);
                 await _context.SaveChangesAsync();
             }
-            
+
             await _context.SaveChangesAsync();
         }
         catch (Exception ex)
@@ -158,7 +184,7 @@ public class MemesController : ControllerBase
     {
         Meme? meme = await _context.Memes.FirstOrDefaultAsync(m => m.Id == id);
         if (meme == null) return NotFound(new { message = "Meme not found or has already been deleted." });
-        
+
         try
         {
             _context.Memes.Remove(meme);
@@ -169,7 +195,7 @@ public class MemesController : ControllerBase
             Console.WriteLine(ex);
             return StatusCode(500, new { message = $"Something went wrong deleting meme ({id})." });
         }
-        
+
         return Ok(new
         {
             message = "Meme has been deleted! ",

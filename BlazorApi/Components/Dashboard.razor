@@ -1,20 +1,24 @@
-﻿
+﻿@using BlazorApi.Models
+@using BlazorApi.Services
+@inject ApiService Api
+@inject IJSRuntime JS
+
 <div class="row">
     <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6">
         <div class="download-card">
             <h2>Memes</h2>
             <div class="row">
                 <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
-                    Total memes: @_totalMemes
+                    Total memes: @_memesStats.MemesCount
                 </div>
                 <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
-                    JPGs: @_totalPics
+                    JPGs: @_memesStats.JpgCount
                 </div>
                 <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
-                    WEBPs: @_totalPics
+                    WEBPs: @_memesStats.WebpCount
                 </div>
                 <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
-                    Videos: @_totalVideos
+                    Videos: @_memesStats.VideosCount
                 </div>
             </div>
         </div>
@@ -24,31 +28,45 @@
             <h2>Tags</h2>
             <div class="row">
                 <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
-                    Total tags: @_totalTags
+                    Total tags: @_tagsesStats.TagCount
                 </div>
                 <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
-                    1st: @_mostUsedTag
+                    1st: 
                 </div>
                 <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
-                    2nd: @_secondMostUsedTag
+                    2nd: 
                 </div>
                 <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
-                    3rd: @_thirdMostUsedTag
+                    3rd: 
                 </div>
             </div>
         </div>
     </div>
 </div>
+
 @code {
 
-    
-    private int _totalMemes;
-    private int _totalPics;
-    private int _totalVideos;
+    MemesStatsDto _memesStats = new();
+    TagsStatsDto _tagsesStats = new();
 
-    private int _totalTags;
-    private int _mostUsedTag;
-    private int _secondMostUsedTag;
-    private int _thirdMostUsedTag;
+    protected override async Task OnInitializedAsync()
+    {
+        var (memesMsg, memeStats) = await Api.GetMemeStatsAsync();
+        if (memeStats == null)
+        {
+            await JS.InvokeVoidAsync("alert", memesMsg);
+            return;
+        }
 
+        _memesStats = memeStats;
+
+        var (tagsMsg, tagsStats) = await Api.GetTagsStatsAsync();
+        if (tagsStats == null)
+        {
+            await JS.InvokeVoidAsync("alert", tagsMsg);
+            return;
+        }
+
+        _tagsesStats = tagsStats;
+    }
 }
