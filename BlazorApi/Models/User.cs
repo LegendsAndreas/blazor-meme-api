@@ -1,11 +1,14 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BlazorApi.Models;
 
+[Table("Users")]
 public class User
 {
     [Key]
     public string Id { get; set; }
+    [StringLength(255)]
     public required string Email { get; set; }
     public required string HashedPassword { get; set; }
     public string? Salt { get; set; }

@@ -1,12 +1,15 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using BlazorApi.Models;
 
-
+[Table("Roles")]
 public class Role
 {
     [Key]
     public string Id { get; set; }
+    [StringLength(255)]
     public required string Name { get; set; } = string.Empty;
+    [StringLength(255)]
     public string Description { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }

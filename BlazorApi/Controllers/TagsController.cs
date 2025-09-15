@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using BlazorApi.Data;
 using BlazorApi.Models;
+using BlazorApi.Services;
 
 namespace BlazorApi.Controllers
 {
@@ -47,12 +48,26 @@ namespace BlazorApi.Controllers
         public async Task<IActionResult> GetTagsStats()
         {
             var tags = await _context.Tags.ToListAsync();
+            
+            var tagUsageCounts = await _context.MemesTags
+                .GroupBy(mt => mt.TagId)
+                .Select(g => new { TagId = g.Key, Uses = g.Count() })
+                .ToListAsync();
+
+            var tagUsageDict = tags.ToDictionary(
+                tag => tag.Name,
+                tag => tagUsageCounts.FirstOrDefault(u => u.TagId == tag.Id)?.Uses ?? 0
+            );
+            
+            var helper = new HelperService();
 
             try
             {
                 TagsStatsDto stats = new TagsStatsDto
                 {
-                    TagCount = tags.Count
+                    TagCount = tags.Count,
+                    ContributedUsers = helper.SetContributedUsers(tags),
+                    Tags = tagUsageDict
                 };
                 
                 return Ok(stats);

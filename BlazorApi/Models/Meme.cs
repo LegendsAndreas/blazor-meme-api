@@ -1,8 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace BlazorApi.Models;
 
+[Table("Memes")]
 public class Meme
 {
     [Key]
@@ -13,6 +15,7 @@ public class Meme
     public string Extension { get; set; } = string.Empty;
     [StringLength(255)]
     public string MimeType { get; set; } = string.Empty;
+    public string AddedBy { get; set; } = string.Empty;
     public required byte[] FileData { get; set; }
     public ICollection<MemesTags> MemesTags { get; set; } = new List<MemesTags>();
     
@@ -39,4 +42,5 @@ public class MemesStatsDto
     public int GifCount { get; set; }
     public int WebpCount { get; set; }
     public int VideosCount { get; set; }
+    public Dictionary<string, int> ContributedUsers { get; set; } = new();
 }

@@ -136,7 +136,7 @@ public class ApiService
                 return ("Successfully gotten meme stats!", memeStats);
             }
 
-            return ("Error getting meme stats: " + response.ReasonPhrase, null);
+            return ("Error getting meme stats: " + response.ReasonPhrase + response.Content.ReadAsStringAsync().Result, null);
         }
         catch (Exception ex)
         {

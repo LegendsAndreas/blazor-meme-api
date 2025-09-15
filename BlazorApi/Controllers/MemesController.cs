@@ -1,5 +1,7 @@
-﻿using BlazorApi.Data;
+﻿using System.Security.Claims;
+using BlazorApi.Data;
 using BlazorApi.Models;
+using BlazorApi.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -44,7 +46,8 @@ public class MemesController : ControllerBase
     public async Task<IActionResult> GetMemeStats()
     {
         var memes = await _context.Memes.ToListAsync();
-
+        var helper = new HelperService();
+        
         try
         {
             MemesStatsDto memeStats = new MemesStatsDto
@@ -54,7 +57,8 @@ public class MemesController : ControllerBase
                 JpgCount = memes.Count(m => m.Extension == ".jpg" || m.Extension == ".jpeg"),
                 PngCount = memes.Count(m => m.Extension == ".png"),
                 VideosCount = memes.Count(m => m.Extension == ".mp4" || m.Extension == ".webm"),
-                WebpCount = memes.Count(m => m.Extension == ".webp")
+                WebpCount = memes.Count(m => m.Extension == ".webp"),
+                ContributedUsers = helper.SetContributedUsers(memes)
             };
             return Ok(memeStats);
         }
@@ -91,18 +95,22 @@ public class MemesController : ControllerBase
         if (await _context.Memes.AnyAsync(m => m.Name == dto.Name))
             return BadRequest(new { message = "Meme name already exists." });
 
+        string? email = User.FindFirstValue(ClaimTypes.Email);
+        
+        if (string.IsNullOrEmpty(email)) return BadRequest("No email in JWT");
 
-        Meme tempMeme = new Meme
+        Meme newMeme = new Meme
         {
             Name = dto.Name,
             Extension = Path.GetExtension(dto.File.FileName),
             MimeType = dto.File.ContentType,
+            AddedBy = email,
             FileData = GetFileBytes(dto.File)
         };
 
         try
         {
-            _context.Memes.Add(tempMeme);
+            _context.Memes.Add(newMeme);
             // We save early, to get the ID of the newly created meme. The ID will automatically be set in "tempMeme"
             await _context.SaveChangesAsync();
 
@@ -126,6 +134,7 @@ public class MemesController : ControllerBase
                 new Tag
                 {
                     Name = n,
+                    AddedBy = email,
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow
                 }).ToList();
@@ -142,8 +151,9 @@ public class MemesController : ControllerBase
             // Actually selects the tags from the DB
             var memesTags = tagsInDb.Select(tag => new MemesTags
             {
-                MemeId = tempMeme.Id,
+                MemeId = newMeme.Id,
                 TagId = tag.Id,
+                createdBy = email,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             }).ToList();
@@ -168,10 +178,10 @@ public class MemesController : ControllerBase
             message = "Meme has been uploaded! ",
             meme = new
             {
-                id = tempMeme.Id,
-                name = tempMeme.Name,
-                extension = tempMeme.Extension,
-                mimeType = tempMeme.MimeType,
+                id = newMeme.Id,
+                name = newMeme.Name,
+                extension = newMeme.Extension,
+                mimeType = newMeme.MimeType,
             }
         });
     }
