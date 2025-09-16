@@ -129,6 +129,15 @@
     </div>
 }
 
+<script>
+    function printScreenSize() {
+        console.log(window.innerWidth);
+        console.log(window.innerHeight);
+    }
+    
+    document.addEventListener('DOMContentLoaded', printScreenSize);
+</script>
+
 @code {
     private string _uploadMemeName = string.Empty;
     private string _downloadMemeName = string.Empty;

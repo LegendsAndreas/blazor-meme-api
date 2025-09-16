@@ -98,6 +98,8 @@ public class MemesController : ControllerBase
         string? email = User.FindFirstValue(ClaimTypes.Email);
         
         if (string.IsNullOrEmpty(email)) return BadRequest("No email in JWT");
+        
+        TimeService timeService = new TimeService();
 
         Meme newMeme = new Meme
         {
@@ -105,7 +107,9 @@ public class MemesController : ControllerBase
             Extension = Path.GetExtension(dto.File.FileName),
             MimeType = dto.File.ContentType,
             AddedBy = email,
-            FileData = GetFileBytes(dto.File)
+            FileData = GetFileBytes(dto.File),
+            CreatedAt = timeService.GetCopenhagenUtcDateTime(),
+            UpdatedAt = timeService.GetCopenhagenUtcDateTime()
         };
 
         try
