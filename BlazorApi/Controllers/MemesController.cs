@@ -27,6 +27,38 @@ public class MemesController : ControllerBase
         return Ok(new { message = "Under construction, here is your parameter: " + name });
     }
 
+    [HttpGet]
+    [Route("test")]
+    public async Task<IActionResult> TestAsync()
+    {
+        return Ok("You can connect!");
+    }
+
+    [HttpGet]
+    [Route("page/{pageNumber}")]
+    public async Task<IActionResult> GetMemesByPage(int pageNumber)
+    {
+        const int pageSize = 20;
+        if (pageNumber < 1)
+            return BadRequest("Page number must be greater than 0.");
+
+        try
+        {
+            var memes = await _context.Memes
+                .OrderBy(m => m.Id)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return Ok(memes);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            return StatusCode(500, "Internal server error getting page memes: " + ex.Message);
+        }
+    }
+
     // /download?name=forespoken
     [HttpGet]
     [Route("download")]
@@ -47,7 +79,7 @@ public class MemesController : ControllerBase
     {
         var memes = await _context.Memes.ToListAsync();
         var helper = new HelperService();
-        
+
         try
         {
             MemesStatsDto memeStats = new MemesStatsDto
@@ -96,9 +128,9 @@ public class MemesController : ControllerBase
             return BadRequest(new { message = "Meme name already exists." });
 
         string? email = User.FindFirstValue(ClaimTypes.Email);
-        
+
         if (string.IsNullOrEmpty(email)) return BadRequest("No email in JWT");
-        
+
         TimeService timeService = new TimeService();
 
         Meme newMeme = new Meme

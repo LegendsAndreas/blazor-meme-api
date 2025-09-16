@@ -20,7 +20,7 @@ public class ApiService
         try
         {
             using var content = new MultipartFormDataContent();
-            using var stream = file.OpenReadStream(maxAllowedSize: 10_000_000);
+            using var stream = file.OpenReadStream(maxAllowedSize: 15_000_000);
             using var ms = new MemoryStream();
             await stream.CopyToAsync(ms);
 
@@ -136,12 +136,13 @@ public class ApiService
                 return ("Successfully gotten meme stats!", memeStats);
             }
 
-            return ("Error getting meme stats: " + response.ReasonPhrase + response.Content.ReadAsStringAsync().Result, null);
+            return ("Error getting meme stats: " + response.ReasonPhrase + response.Content.ReadAsStringAsync().Result,
+                null);
         }
         catch (Exception ex)
         {
             Console.WriteLine(ex);
-            return ("Exception caught getting meme stats", null );
+            return ("Exception caught getting meme stats", null);
         }
     }
 
@@ -161,7 +162,27 @@ public class ApiService
         catch (Exception ex)
         {
             Console.WriteLine(ex);
-            return ("Generel exception caught getting tags stats", null );
+            return ("Generel exception caught getting tags stats", null);
+        }
+    }
+
+    public async Task<(string msg, List<Meme>? memes)> GetMemesPageAsync(int page)
+    {
+        try
+        {
+            var response = await _httpClient.GetAsync($"memes/page/{page}");
+            if (response.IsSuccessStatusCode)
+            {
+                var memes = await response.Content.ReadFromJsonAsync<List<Meme>>();
+                return ("Successfully gotten memes!", memes);
+            }
+
+            return ("Error getting memes: " + response.ReasonPhrase + response.Content.ReadAsStringAsync().Result,
+                null);
+        }
+        catch (Exception ex)
+        {
+            return ("Error getting memes: " + ex.Message, null);
         }
     }
 }
