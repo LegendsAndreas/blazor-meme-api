@@ -1,0 +1,89 @@
+@page "/memes"
+@using Frontend.Models
+@using Frontend.Services
+@inject ApiService API
+@inject IJSRuntime JS
+@inject NavigationManager Navigation
+
+<div class="container">
+    <div class="row">
+        @foreach (Meme meme in _memesPage)
+        {
+            <div class="row memes__row my-2 py-2">
+                <div class="col">
+                    @if (meme.MimeType.Contains("video"))
+                    {
+                        <video class="memes__row__image" controls>
+                            <source src="data:@meme.MimeType;base64,@Convert.ToBase64String(meme.FileData)" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                    }
+                    else
+                    {
+                        <img class="memes__row__image" src="data:@meme.MimeType;base64,@Convert.ToBase64String(meme.FileData)"
+                             alt="@meme.Name"/>
+                    }
+                </div>
+                <div class="col">
+                    @meme.Id: @meme.Name
+                </div>
+                <div class="col">
+                    @meme.MimeType
+                </div>
+                <div class="col">
+                    @(string.IsNullOrEmpty(meme.AddedBy) ? "N/A" : meme.AddedBy)
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+
+    private int _currentPage;
+    private List<Meme> _memesPage = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        var pageString = GetQueryString("page");
+        if (int.TryParse(pageString, out int pageValue))
+            _currentPage = pageValue;
+        else
+            _currentPage = 1; // Default to 1 if "page" not specified
+
+        await GetMemes();
+
+    }
+
+    private string? GetQueryString(string key)
+    {
+        var uri = new Uri(Navigation.Uri);
+        // Remove the leading '?'
+        var query = uri.Query.Length > 1 ? uri.Query[1..] : string.Empty;
+        var pairs = query.Split('&', StringSplitOptions.RemoveEmptyEntries);
+        foreach (var pair in pairs)
+        {
+            var kvp = pair.Split('=', 2);
+            if (kvp.Length == 2 && kvp[0] == key)
+            {
+                // Decoding URL-encoded values
+                return Uri.UnescapeDataString(kvp[1]);
+            }
+        }
+        return null;
+    }
+
+    
+    private async Task GetMemes()
+    {
+        var (msg, memes) = await API.GetMemesPageAsync(_currentPage);
+        if (memes == null)
+        {
+            Console.WriteLine(msg);
+            return;
+        }
+
+        _memesPage = memes;
+    }
+
+}

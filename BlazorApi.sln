@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorApi", "BlazorApi\BlazorApi.csproj", "{0291775E-C7FA-4635-8721-7B109125E4AD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Frontend", "Frontend\Frontend.csproj", "{14EC7D4B-6A16-4F47-B8E5-21D954C4647A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{0291775E-C7FA-4635-8721-7B109125E4AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0291775E-C7FA-4635-8721-7B109125E4AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0291775E-C7FA-4635-8721-7B109125E4AD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{14EC7D4B-6A16-4F47-B8E5-21D954C4647A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{14EC7D4B-6A16-4F47-B8E5-21D954C4647A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{14EC7D4B-6A16-4F47-B8E5-21D954C4647A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{14EC7D4B-6A16-4F47-B8E5-21D954C4647A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

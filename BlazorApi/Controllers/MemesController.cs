@@ -28,6 +28,15 @@ public class MemesController : ControllerBase
     }
 
     [HttpGet]
+    [Route("{id}")]
+    public async Task<ActionResult<Meme>> GetMeme(int id)
+    {
+        var meme = await _context.Memes.FirstOrDefaultAsync(m => m.Id == id);
+        if (meme == null) return NotFound("Meme not found.");
+        return Ok(meme);
+    }
+
+    [HttpGet]
     [Route("test")]
     public async Task<IActionResult> TestAsync()
     {

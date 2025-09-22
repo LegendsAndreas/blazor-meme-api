@@ -6,4 +6,5 @@ obj/
 .idea
 BlazorApi/appsettings.json
 BlazorApi/appsettings.Development.json
+Frontend/wwwroot/appsettings.json
 API/Logs

@@ -1,0 +1,52 @@
+@page "/meme-details/{id:int}"
+@using Frontend.Models
+@using Frontend.Components
+@using Frontend.Services
+@inject ApiService Api
+@inject IJSRuntime JS
+
+<h1>Meme</h1>
+
+<div class="container">
+    @if (_meme != null)
+    {
+        <div class="meme-detail">
+            <div class="row">
+                <div class="col-6">
+                    <img class="meme-detail__image" src="data:@_meme.MimeType;base64,@Convert.ToBase64String(_meme.FileData)" alt="@_meme.Name"/>
+                </div>
+                <div class="col-6">
+                    <p>@_meme.Name</p>
+                    <p>@_meme.MimeType</p>
+                    <p>@_meme.AddedBy</p>
+                    <p>@_meme.CreatedAt</p>
+                    <p>@_meme.UpdatedAt</p>
+                    <p>@_meme.Id</p>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <Loading/>
+    }
+</div>
+
+@code {
+
+    [Parameter] public int id { get; set; }
+    Meme? _meme;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var (msg, meme) = await Api.GetMemeAsync(id);
+        if (meme == null)
+        {
+            await JS.InvokeVoidAsync("alert", msg);
+            return;
+        }
+
+        _meme = meme;
+    }
+
+}

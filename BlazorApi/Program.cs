@@ -73,7 +73,8 @@ public class Program
                 {
                     policyBuilder
                         .WithOrigins(
-                            Configuration["Origin"]
+                            Configuration["Origin"],
+                            "https://localhost:7231"
                         )
                         .AllowAnyMethod()
                         .AllowAnyHeader()
@@ -93,6 +94,8 @@ public class Program
         });
 
         var app = builder.Build();
+        
+        app.UseCors("AllowSpecificOrigins");
 
         // Configure the HTTP request pipeline.
         if (!app.Environment.IsDevelopment())

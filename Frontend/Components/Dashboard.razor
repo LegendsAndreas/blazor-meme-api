@@ -1,0 +1,149 @@
+﻿@namespace Frontend.Components
+@using Frontend.Services
+@using Frontend.Models
+@inject ApiService Api
+@inject IJSRuntime JS
+
+<div class="row">
+    <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6">
+        <div class="download-card">
+            <h2><strong>Memes</strong></h2>
+            <div class="row">
+                @if (!_loadingMemes)
+                {
+                    <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
+                        Total memes: @_memesStats.MemesCount
+                    </div>
+                    <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
+                        JPGs: @_memesStats.JpgCount
+                    </div>
+                    <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
+                        WEBPs: @_memesStats.WebpCount
+                    </div>
+                    <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
+                        Videos: @_memesStats.VideosCount
+                    </div>
+                }
+                else
+                {
+                    <Loading/>
+                }
+            </div>
+            <h4>
+                Contributed users:
+            </h4>
+            <div>
+                @foreach (var user in _memesStats.ContributedUsers)
+                {
+                    <span>@user.Key @user.Value</span>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6">
+        <div class="download-card">
+            <h2><strong>Tags</strong></h2>
+            <div class="row">
+                @if (!_loadingTags)
+                {
+                    <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
+                        Total tags: @_tagsStats.TagCount
+                    </div>
+                    <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
+                        1st:
+                    </div>
+                    <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
+                        2nd:
+                    </div>
+                    <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
+                        3rd:
+                    </div>
+                }
+                else
+                {
+                    <Loading/>
+                }
+            </div>
+            <h4>
+                All tags:
+            </h4>
+            @foreach (var tag in _tagsStats.Tags)
+            {
+                <span>@tag.Key: @tag.Value</span>
+            }
+            
+            <h4>
+                Contributed users:
+            </h4>
+            <div>
+                @foreach (var user in _tagsStats.ContributedUsers)
+                {
+                    <span>@user.Key @user.Value</span>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .download-card {
+        border: 1px solid gray;
+        border-radius: 5px;
+        padding: 10px;
+        margin: 10px;
+        background-color: #00d3d3;
+
+        label, button {
+            margin-bottom: 10px;
+        }
+    }
+</style>
+
+@code {
+    MemesStatsDto _memesStats = new();
+    TagsStatsDto _tagsStats = new();
+
+    bool _loadingMemes = true;
+    bool _loadingTags = true;
+
+    // Add fields to store alert info
+    string? _pendingAlertMessage;
+    bool _alertRequested;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var (memesMsg, memeStats) = await Api.GetMemeStatsAsync();
+        if (memeStats == null)
+        {
+            _pendingAlertMessage = memesMsg;
+            _alertRequested = true;
+            return;
+        }
+
+        _memesStats = memeStats;
+        _loadingMemes = false;
+
+        var (tagsMsg, tagsStats) = await Api.GetTagsStatsAsync();
+        if (tagsStats == null)
+        {
+            _pendingAlertMessage = tagsMsg;
+            _alertRequested = true;
+            return;
+        }
+
+        _tagsStats = tagsStats;
+        _loadingTags = false;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        // Only show alert if requested
+        if (_alertRequested && !string.IsNullOrWhiteSpace(_pendingAlertMessage))
+        {
+            _alertRequested = false; // Prevents alert from showing on every render
+            await JS.InvokeVoidAsync("alert", _pendingAlertMessage);
+            StateHasChanged();
+        }
+    }
+
+}
