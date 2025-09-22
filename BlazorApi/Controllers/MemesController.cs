@@ -47,7 +47,7 @@ public class MemesController : ControllerBase
     [Route("page/{pageNumber}")]
     public async Task<IActionResult> GetMemesByPage(int pageNumber)
     {
-        const int pageSize = 20;
+        const int pageSize = 5;
         if (pageNumber < 1)
             return BadRequest("Page number must be greater than 0.");
 

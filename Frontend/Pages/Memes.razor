@@ -1,41 +1,62 @@
 @page "/memes"
+@using System.Text.Json
 @using Frontend.Models
 @using Frontend.Services
+@using Frontend.Components
 @inject ApiService API
 @inject IJSRuntime JS
 @inject NavigationManager Navigation
+@inject StorageService Storage
 
 <div class="container">
-    <div class="row">
-        @foreach (Meme meme in _memesPage)
-        {
-            <div class="row memes__row my-2 py-2">
-                <div class="col">
-                    @if (meme.MimeType.Contains("video"))
-                    {
-                        <video class="memes__row__image" controls>
-                            <source src="data:@meme.MimeType;base64,@Convert.ToBase64String(meme.FileData)" type="video/mp4">
-                            Your browser does not support the video tag.
-                        </video>
-                    }
-                    else
-                    {
-                        <img class="memes__row__image" src="data:@meme.MimeType;base64,@Convert.ToBase64String(meme.FileData)"
-                             alt="@meme.Name"/>
-                    }
+    @if (_memesPage.Any())
+    {
+        <div class="row">
+            @foreach (Meme meme in _memesPage)
+            {
+                var base64 = Convert.ToBase64String(meme.FileData);
+                var memeId = meme.Id;
+                <div class="row memes__row first-layer-card my-2 py-2">
+                    <div class="col">
+                        @if (meme.MimeType.Contains("video"))
+                        {
+                            <a href="/meme-details/@memeId" @onclick="() => SaveCarryOverMemeAsync(meme)">
+                                <video class="memes__row__image" controls>
+                                    <source src="data:@meme.MimeType;base64,@base64"
+                                            type="video/mp4">
+                                    Your browser does not support the video tag.
+                                </video>
+                            </a>
+                        }
+                        else
+                        {
+                            <a href="/meme-details/@memeId" @onclick="() => SaveCarryOverMemeAsync(meme)">
+                                <img class="memes__row__image"
+                                     src="data:@meme.MimeType;base64,@base64"
+                                     alt="@meme.Name"/>
+                            </a>
+                        }
+                    </div>
+                    <div class="col">
+                        @meme.Id: @meme.Name
+                    </div>
+                    <div class="col">
+                        @meme.MimeType
+                    </div>
+                    <div class="col">
+                        @(string.IsNullOrEmpty(meme.AddedBy) ? "N/A" : meme.AddedBy)
+                    </div>
                 </div>
-                <div class="col">
-                    @meme.Id: @meme.Name
-                </div>
-                <div class="col">
-                    @meme.MimeType
-                </div>
-                <div class="col">
-                    @(string.IsNullOrEmpty(meme.AddedBy) ? "N/A" : meme.AddedBy)
-                </div>
-            </div>
-        }
-    </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="justify-content-center d-flex">
+            <Loading/>
+        </div>
+    }
+
 </div>
 
 @code {
@@ -52,7 +73,6 @@
             _currentPage = 1; // Default to 1 if "page" not specified
 
         await GetMemes();
-
     }
 
     private string? GetQueryString(string key)
@@ -70,10 +90,11 @@
                 return Uri.UnescapeDataString(kvp[1]);
             }
         }
+
         return null;
     }
 
-    
+
     private async Task GetMemes()
     {
         var (msg, memes) = await API.GetMemesPageAsync(_currentPage);
@@ -84,6 +105,12 @@
         }
 
         _memesPage = memes;
+    }
+
+    private async Task SaveCarryOverMemeAsync(Meme meme)
+    {
+        var result = JsonSerializer.Serialize(meme);
+        await Storage.SaveItemToLocalStorageAsync("carryOverMeme", result);
     }
 
 }

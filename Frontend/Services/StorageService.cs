@@ -1,6 +1,6 @@
 ﻿using Microsoft.JSInterop;
 
-namespace BlazorApi.Services;
+namespace Frontend.Services;
 
 public class StorageService
 {

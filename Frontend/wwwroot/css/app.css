@@ -22,6 +22,14 @@ html, body {
     color: red;
 }
 
+.first-layer-card {
+    border: 2px solid white;
+    border-radius: 15px;
+    background: rgba(255, 255, 255, 0.55);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10.5px);
+}
+
 #blazor-error-ui {
     color-scheme: light only;
     background: lightyellow;

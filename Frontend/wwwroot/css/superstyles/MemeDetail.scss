@@ -1,5 +1,25 @@
 .meme-detail {
+  margin: 5px 30px;
+  box-shadow: 20px 10px 15px rgba(0, 0, 0, 0.3);
+
   &__image {
-    width: 100%;
+    img {
+      width: 100%;
+      border: 2px solid white;
+      border-right: none;
+    }
+    padding-right: 0 !important;
+    padding-left: 0 !important;
+  }
+
+  &__info {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    border: 2px solid white;
+    border-left: none;
+    border-radius: 0 15px 15px 0;
+    background: rgba(255, 255, 255, 0.55);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10.5px);
   }
 }

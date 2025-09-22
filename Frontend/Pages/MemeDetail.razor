@@ -1,36 +1,54 @@
 @page "/meme-details/{id:int}"
+@using System.Text.Json
 @using Frontend.Models
 @using Frontend.Components
 @using Frontend.Services
+@inject StorageService Storage
 @inject ApiService Api
 @inject IJSRuntime JS
 
-<h1>Meme</h1>
-
-<div class="container">
-    @if (_meme != null)
-    {
-        <div class="meme-detail">
-            <div class="row">
-                <div class="col-6">
-                    <img class="meme-detail__image" src="data:@_meme.MimeType;base64,@Convert.ToBase64String(_meme.FileData)" alt="@_meme.Name"/>
-                </div>
-                <div class="col-6">
-                    <p>@_meme.Name</p>
-                    <p>@_meme.MimeType</p>
-                    <p>@_meme.AddedBy</p>
-                    <p>@_meme.CreatedAt</p>
-                    <p>@_meme.UpdatedAt</p>
-                    <p>@_meme.Id</p>
-                </div>
+@if (_meme != null)
+{
+    <div class="meme-detail">
+        <div class="row">
+            <div class="col-6 meme-detail__image">
+                <img src="data:@_meme.MimeType;base64,@Convert.ToBase64String(_meme.FileData)" alt="@_meme.Name"/>
+            </div>
+            <div class="col-6 meme-detail__info">
+                <h2>@_meme.Name</h2>
+                <p>@_meme.MimeType</p>
+                <p>@_meme.AddedBy</p>
+                <p>@_meme.CreatedAt</p>
+                <p>@_meme.UpdatedAt</p>
+                <p>@_meme.Id</p>
             </div>
         </div>
-    }
-    else
-    {
-        <Loading/>
-    }
-</div>
+    </div>
+}
+else
+{
+    <Loading/>
+}
+
+@*@if (_carryOverDto != null)
+{
+    <div class="meme-detail">
+        <div class="row">
+            <div class="col-6 meme-detail__image">
+                <img src="data:@_carryOverDto.MimeType;base64,@Convert.ToBase64String(_carryOverDto.FileData)"
+                     alt="@_carryOverDto.Name"/>
+            </div>
+            <div class="col-6 meme-detail__info">
+                <h2>@_carryOverDto.Name</h2>
+                <p>@_carryOverDto.MimeType</p>
+                <p>@_carryOverDto.AddedBy</p>
+                <p>@_carryOverDto.CreatedAt</p>
+                <p>@_carryOverDto.UpdatedAt</p>
+                <p>@_carryOverDto.Id</p>
+            </div>
+        </div>
+    </div>
+}*@
 
 @code {
 
@@ -39,6 +57,28 @@
 
     protected override async Task OnInitializedAsync()
     {
+        string? localMeme = await Storage.GetItemFromLocalStorageAsync("carryOverMeme");
+        if (!string.IsNullOrEmpty(localMeme))
+        {
+            try
+            {
+                Meme? _carryOverDto = JsonSerializer.Deserialize<Meme>(localMeme);
+                if (_carryOverDto?.Id == id)
+                {
+                    _meme = _carryOverDto;
+                    return;
+                }
+            }
+            catch (NullReferenceException ex)
+            {
+                Console.WriteLine(ex);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+        }
+
         var (msg, meme) = await Api.GetMemeAsync(id);
         if (meme == null)
         {

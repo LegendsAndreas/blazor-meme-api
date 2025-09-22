@@ -29,6 +29,7 @@ public class Program
             client.BaseAddress = new Uri(apiEndpoint);
             Console.WriteLine($"APIService BaseAddress: {client.BaseAddress}");
         });
+        builder.Services.AddScoped<StorageService>();
 
         builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 

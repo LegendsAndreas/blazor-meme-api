@@ -1,7 +1,5 @@
 .memes__row {
-  background-color: #00d3d3;
   align-items: center;
-  border-radius: 5px;
 }
 .memes__row__image {
   width: 100px;
