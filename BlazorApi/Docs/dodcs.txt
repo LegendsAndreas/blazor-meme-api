@@ -5,3 +5,6 @@ The tags table came out as Tag and not Tags.
 
 The below code works good with simple HTTP returns, like: StatusCode(500, "Something went wrong"). Not: StatusCode(500, new{ message = "Something went wrong"}).
 await response.Content.ReadAsStringAsync();
+
+23-09-25:
+The blazor project sometimes reverts back to an older version of the fucking program

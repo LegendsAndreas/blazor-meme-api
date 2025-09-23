@@ -29,6 +29,10 @@ html, body {
     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
     backdrop-filter: blur(10.5px);
 }
+.first-layer-card-padding-margins {
+    margin: 10px;
+    padding: 10px;
+}
 
 #blazor-error-ui {
     color-scheme: light only;
