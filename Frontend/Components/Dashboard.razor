@@ -6,7 +6,7 @@
 
 <div class="row">
     <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6">
-        <div class="download-card">
+        <div class="download-card first-layer-card">
             <h2><strong>Memes</strong></h2>
             <div class="row">
                 @if (!_loadingMemes)
@@ -41,7 +41,7 @@
         </div>
     </div>
     <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6">
-        <div class="download-card">
+        <div class="download-card first-layer-card">
             <h2><strong>Tags</strong></h2>
             <div class="row">
                 @if (!_loadingTags)
@@ -69,9 +69,9 @@
             </h4>
             @foreach (var tag in _tagsStats.Tags)
             {
-                <span>@tag.Key: @tag.Value</span>
+                <span><span class="triangle">@tag.Key</span>:@tag.Value, </span>
             }
-            
+
             <h4>
                 Contributed users:
             </h4>
@@ -87,16 +87,38 @@
 
 <style>
     .download-card {
-        border: 1px solid gray;
-        border-radius: 5px;
         padding: 10px;
         margin: 10px;
-        background-color: #00d3d3;
 
         label, button {
             margin-bottom: 10px;
         }
     }
+
+    .triangle {
+        margin-right: 16px;
+        position: relative;
+        background-color: #007bff;
+        word-break: keep-all;
+        overflow-wrap: normal;
+        white-space: pre;
+        padding-left: 5px;
+        color: white;
+    }
+
+    .triangle::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 0;
+        height: 0;
+        border-top: 11px solid transparent;
+        border-bottom: 11px solid transparent;
+        border-left: 16px solid #007bff;
+    }
+
+
 </style>
 
 @code {
