@@ -1,0 +1,17 @@
+@using Frontend.Services
+@inject StorageService Storage
+<div class="first-layer-card first-layer-card-padding-margins">
+    <button class="btn btn-primary" @onclick="Test">Download meme</button>
+    <InputText @bind-Value="_downloadMemeName" class="form-control" style="width: unset" placeholder="Name..."/>
+</div>
+
+@code {
+
+    private string _downloadMemeName = string.Empty;
+    
+    private async Task Test()
+    {
+        await Storage.SaveItemToLocalStorageAsync("Test", "piss");
+    }
+
+}

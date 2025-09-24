@@ -1,0 +1,28 @@
+﻿@using Frontend.Services
+@inject StorageService Storage
+@inject IJSRuntime JS
+@inject ApiService Api
+
+<div class="first-layer-card first-layer-card-padding-margins">
+    <button class="btn btn-danger" @onclick="DeleteMemeAsync">Delete meme (ID)</button>
+    <InputNumber @bind-Value="_deleteMemeId" class="form-control" style="width: unset" placeholder="ID..."/>
+</div>
+
+@code {
+
+    private int _deleteMemeId;
+    private async Task DeleteMemeAsync()
+    {
+        string? token = await Storage.GetItemFromLocalStorageAsync("authToken");
+
+        if (string.IsNullOrEmpty(token))
+        {
+            await JS.InvokeVoidAsync("alert", "No auth token found");
+            return;
+        }
+
+        var result = await Api.DeleteMemeAsync(_deleteMemeId, token);
+        await JS.InvokeVoidAsync("alert", result);
+    }
+
+}

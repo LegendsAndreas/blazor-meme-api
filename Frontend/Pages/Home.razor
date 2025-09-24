@@ -8,97 +8,23 @@
 
 <PageTitle>Home</PageTitle>
 
-
 <h1 style="justify-self: center">The Retard Cube</h1>
 
 <div class="row justify-content-center">
     <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
-        <div class="first-layer-card first-layer-card-padding-margins">
-            <label for="uploadMemeInput" class="btn btn-warning">
-                Upload meme
-            </label>
-            <InputText @bind-Value="@_uploadMemeName" class="form-control" style="width: unset" placeholder="Name..."/>
-            <InputFile OnChange="OnInputFileChange" accept="image/*,video/*" id="uploadMemeInput" style="display:none"/>
-            
-            <button class="btn btn-warning mt-2" @onclick="AddTagToTags">Add tag</button>
-            <InputText @bind-Value="_currentTag" class="form-control" style="width: unset" placeholder="Tag..."/>
-            <div>
-                @foreach (string tag in _tags)
-                {
-                    <p>@tag</p>
-                }
-            </div>
-        </div>
+        <UploadMeme/>
     </div>
     <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
-        <div class="first-layer-card first-layer-card-padding-margins">
-            <button class="btn btn-primary" @onclick="Test">Download meme</button>
-            <InputText @bind-Value="_downloadMemeName" class="form-control" style="width: unset" placeholder="Name..."/>
-        </div>
+        <DownloadMeme/>
     </div>
     <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
-        <div class="first-layer-card first-layer-card-padding-margins">
-            <button class="btn btn-danger" @onclick="DeleteMeme">Delete meme (ID)</button>
-            <InputNumber @bind-Value="_deleteMemeId" class="form-control" style="width: unset" placeholder="ID..."/>
-        </div>
+        <DeleteMeme/>
     </div>
     <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
-        <div class="first-layer-card first-layer-card-padding-margins">
-            <EditForm Model="@_registerDto" OnValidSubmit="RegisterUser">
-                <DataAnnotationsValidator/>
-                <ValidationSummary/>
-                <div>
-                    <label>
-                        Email
-                    </label>
-                    <InputText @bind-Value="_registerDto.Email" class="form-control" style="width: unset"></InputText>
-                </div>
-                <div>
-                    <label>
-                        Password
-                    </label>
-                    <InputText @bind-Value="_registerDto.Password" class="form-control"
-                               style="width: unset"></InputText>
-                </div>
-                <div>
-                    <label>
-                        Repeated Password
-                    </label>
-                    <InputText @bind-Value="_registerDto.ConfirmPassword" class="form-control"
-                               style="width: unset"></InputText>
-                </div>
-                <button class="btn btn-primary mt-2" type="submit">Register</button>
-            </EditForm>
-        </div>
+        <RegisterUser/>
     </div>
     <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
-        <div class="first-layer-card first-layer-card-padding-margins">
-            <EditForm Model="@_logOnDto" OnValidSubmit="LogInUser">
-                <DataAnnotationsValidator/>
-                <ValidationSummary/>
-                <div>
-                    <label>
-                        Email
-                    </label>
-                    <InputText @bind-Value="_logOnDto.email" class="form-control" style="width: unset"></InputText>
-                </div>
-                <div>
-                    <label>
-                        Password
-                    </label>
-                    <InputText @bind-Value="_logOnDto.password" class="form-control" style="width: unset"
-                               type="password"></InputText>
-                </div>
-                @if (_loadingLogin)
-                {
-                    <Loading/>
-                }
-                else
-                {
-                    <button class="btn btn-primary mt-2" type="submit">Login</button>
-                }
-            </EditForm>
-        </div>
+        <Login/>
     </div>
     <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
         
@@ -109,95 +35,5 @@
 
 @code {
 
-    
-    private string _uploadMemeName = string.Empty;
-    private string _downloadMemeName = string.Empty;
     private string _alertMessage;
-    private int _deleteMemeId;
-    private bool _loadingLogin;
-    private string _currentTag = string.Empty;
-    private User.RegisterDto _registerDto = new();
-    private User.LogOnDto _logOnDto = new();
-    private List<string> _tags = [];
-
-    private async Task OnInputFileChange(InputFileChangeEventArgs e)
-    {
-        if (_uploadMemeName == "")
-        {
-            await JS.InvokeVoidAsync("alert", "No name given for meme");
-            return;
-        }
-
-        var file = e.File;
-        Console.WriteLine($"Selected: {file.Name} ({file.ContentType}), {file.Size} bytes");
-
-        try
-        {
-            string? token = await Storage.GetItemFromLocalStorageAsync("authToken");
-
-            if (string.IsNullOrEmpty(token))
-            {
-                await JS.InvokeVoidAsync("alert", "No auth token found");
-                return;
-            }
-
-            var result = await Api.UploadMemeAsync(e.File, _tags, _uploadMemeName, token);
-            await JS.InvokeVoidAsync("alert", result);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex);
-            return;
-        }
-    }
-
-    private async Task RegisterUser()
-    {
-        var result = await Api.RegisterUser(_registerDto);
-        await JS.InvokeVoidAsync("alert", result);
-    }
-
-    private async Task LogInUser()
-    {
-        Console.WriteLine("Password: " + _logOnDto.password);
-        _loadingLogin = true;
-        StateHasChanged();
-        var result = await Api.LoginUserAsync(_logOnDto.email, _logOnDto.password);
-
-        if (result.token == null)
-        {
-            await JS.InvokeVoidAsync("alert", "Token was null: " + result.msg);
-            _loadingLogin = false;
-            StateHasChanged();
-            return;
-        }
-
-        await Storage.SaveItemToLocalStorageAsync("authToken", result.token);
-        _loadingLogin = false;
-        StateHasChanged();
-    }
-
-    private async Task DeleteMeme()
-    {
-        string? token = await Storage.GetItemFromLocalStorageAsync("authToken");
-
-        if (string.IsNullOrEmpty(token))
-        {
-            await JS.InvokeVoidAsync("alert", "No auth token found");
-            return;
-        }
-
-        var result = await Api.DeleteMemeAsync(_deleteMemeId, token);
-        await JS.InvokeVoidAsync("alert", result);
-    }
-
-    private void AddTagToTags()
-    {
-        _tags.Add(_currentTag);
-    }
-
-    private async Task Test()
-    {
-        await Storage.SaveItemToLocalStorageAsync("Test", "piss");
-    }
 }

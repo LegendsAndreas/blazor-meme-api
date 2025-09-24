@@ -1,0 +1,44 @@
+﻿@using Frontend.Models
+@using Frontend.Services
+@inject ApiService Api
+@inject IJSRuntime JS
+
+<div class="first-layer-card first-layer-card-padding-margins">
+    <EditForm Model="@_registerDto" OnValidSubmit="RegisterUserAsync">
+        <DataAnnotationsValidator/>
+        <ValidationSummary/>
+        <div>
+            <label>
+                Email
+            </label>
+            <InputText @bind-Value="_registerDto.Email" class="form-control" style="width: unset"></InputText>
+        </div>
+        <div>
+            <label>
+                Password
+            </label>
+            <InputText @bind-Value="_registerDto.Password" class="form-control"
+                       style="width: unset"></InputText>
+        </div>
+        <div>
+            <label>
+                Repeated Password
+            </label>
+            <InputText @bind-Value="_registerDto.ConfirmPassword" class="form-control"
+                       style="width: unset"></InputText>
+        </div>
+        <button class="btn btn-primary mt-2" type="submit">Register</button>
+    </EditForm>
+</div>
+
+@code {
+
+    private User.RegisterDto _registerDto = new();
+
+    private async Task RegisterUserAsync()
+    {
+        var result = await Api.RegisterUser(_registerDto);
+        await JS.InvokeVoidAsync("alert", result);
+    }
+
+}

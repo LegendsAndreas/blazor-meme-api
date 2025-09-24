@@ -1,0 +1,60 @@
+﻿@using Frontend.Models
+@using Frontend.Services
+@inject ApiService Api
+@inject IJSRuntime JS
+@inject StorageService Storage
+
+<div class="first-layer-card first-layer-card-padding-margins">
+    <EditForm Model="@_logOnDto" OnValidSubmit="LogInUser">
+        <DataAnnotationsValidator/>
+        <ValidationSummary/>
+        <div>
+            <label>
+                Email
+            </label>
+            <InputText @bind-Value="_logOnDto.email" class="form-control" style="width: unset"></InputText>
+        </div>
+        <div>
+            <label>
+                Password
+            </label>
+            <InputText @bind-Value="_logOnDto.password" class="form-control" style="width: unset"
+                       type="password"></InputText>
+        </div>
+        @if (_loadingLogin)
+        {
+            <Loading/>
+        }
+        else
+        {
+            <button class="btn btn-primary mt-2" type="submit">Login</button>
+        }
+    </EditForm>
+</div>
+
+@code {
+
+    private bool _loadingLogin;
+    private User.LogOnDto _logOnDto = new();
+
+    private async Task LogInUser()
+    {
+        Console.WriteLine("Password: " + _logOnDto.password);
+        _loadingLogin = true;
+        StateHasChanged();
+        var result = await Api.LoginUserAsync(_logOnDto.email, _logOnDto.password);
+
+        if (result.token == null)
+        {
+            await JS.InvokeVoidAsync("alert", "Token was null: " + result.msg);
+            _loadingLogin = false;
+            StateHasChanged();
+            return;
+        }
+
+        await Storage.SaveItemToLocalStorageAsync("authToken", result.token);
+        _loadingLogin = false;
+        StateHasChanged();
+    }
+
+}

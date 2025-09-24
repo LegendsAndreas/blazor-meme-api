@@ -1,0 +1,103 @@
+﻿@using System.Data.Common
+@using BlazorApi.Services
+@using Frontend.Services
+@inject ApiService Api
+@inject StorageService Storage
+@inject IJSRuntime JS
+
+<div class="first-layer-card first-layer-card-padding-margins">
+    <label for="uploadMemeInput" class="btn btn-warning mb-2">
+        Choose meme
+    </label>
+    <InputText @bind-Value="@_uploadMemeName" class="form-control" style="width: unset" placeholder="Name..."/>
+    <InputFile OnChange="OnInputFileChange" accept="image/*,video/*" id="uploadMemeInput" style="display:none"/>
+
+    <button class="btn btn-warning my-2" @onclick="AddTagToTags">Add tag</button>
+    <InputText @bind-Value="_currentTag" class="form-control" style="width: unset" placeholder="Tag..."/>
+
+    <button class="btn btn-warning my-2" @onclick="UploadMemeAsync">Upload Meme</button>
+
+    @if (!string.IsNullOrEmpty(_filePreviewUrl) && !string.IsNullOrEmpty(_fileType))
+    {
+        if (_fileType.StartsWith("image"))
+        {
+            <img src="@_filePreviewUrl" style="width: 100px" alt="Preview image..."/>
+        }
+        else if (_fileType.StartsWith("video"))
+        {
+            <video src="@_filePreviewUrl" style="width: 150px" controls></video>
+        }
+    }
+    
+    <div>
+        @foreach (string tag in _tags)
+        {
+            <p>@tag</p>
+        }
+    </div>
+</div>
+
+@code {
+
+    private string _uploadMemeName = string.Empty;
+    private string _currentTag = string.Empty;
+    private IBrowserFile? _memeImage;
+    private List<string> _tags = [];
+    private string? _filePreviewUrl;
+    private string? _fileType;
+
+    private void AddTagToTags() => _tags.Add(_currentTag);
+    private void EmptyTags() => _tags = [];
+    
+    private async void OnInputFileChange(InputFileChangeEventArgs e)
+    {
+        _memeImage = e.File;
+        _fileType = _memeImage.ContentType;
+
+        var buffer = new byte[_memeImage.Size];
+        await _memeImage.OpenReadStream(_memeImage.Size).ReadAsync(buffer);
+        _filePreviewUrl = $"data:{_memeImage.ContentType};base64,{Convert.ToBase64String(buffer)}";
+        StateHasChanged();
+    }
+
+    private async Task UploadMemeAsync()
+    {
+        if (_uploadMemeName == "")
+        {
+            await JS.InvokeVoidAsync("alert", "No name given for meme");
+            return;
+        }
+
+        if (_memeImage == null)
+        {
+            await JS.InvokeVoidAsync("alert", "No image uploaded");
+            return;
+        }
+
+        try
+        {
+            string? token = await Storage.GetItemFromLocalStorageAsync("authToken");
+
+            if (string.IsNullOrEmpty(token))
+            {
+                await JS.InvokeVoidAsync("alert", "No auth token found");
+                return;
+            }
+
+            var result = await Api.UploadMemeAsync(_memeImage, _tags, _uploadMemeName, token);
+            EmptyTags();
+            await JS.InvokeVoidAsync("alert", result);
+        }
+        catch (DbException ex)
+        {
+            await JS.InvokeVoidAsync("alert", "DB Exception caught uploading meme: " + ex.Message);
+            return;
+        }
+        catch (Exception ex)
+        {
+            await JS.InvokeVoidAsync("alert", "Generel Exception caught uploading meme: " + ex.Message);
+            return;
+        }
+    }
+
+}
