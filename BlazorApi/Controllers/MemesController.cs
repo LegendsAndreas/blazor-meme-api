@@ -73,13 +73,17 @@ public class MemesController : ControllerBase
     [Route("download")]
     public async Task<IActionResult> DownloadMemeByName(string? name)
     {
-        if (string.IsNullOrEmpty(name)) return BadRequest(new { message = "No name provided." });
+        if (string.IsNullOrEmpty(name)) return BadRequest("No name provided.");
 
         Meme? meme = await _context.Memes.FirstOrDefaultAsync(m => m.Name == name);
 
-        if (meme == null) return NotFound(new { message = "Meme not found." });
+        if (meme == null) return NotFound("Meme not found.");
 
-        return File(meme.FileData, meme.MimeType, meme.Name + meme.Extension);
+        // I believe this is just good to have and a more correct structure of a request.
+        HttpContext.Response.Headers.Append("X-Custom-Header", "CustomHeaderValue");
+        HttpContext.Response.Headers.Append("Content-Disposition", $"attachment; filename=\"{meme.Name + meme.Extension}\"");
+
+        return File(meme.FileData, meme.MimeType);
     }
 
     [HttpGet]

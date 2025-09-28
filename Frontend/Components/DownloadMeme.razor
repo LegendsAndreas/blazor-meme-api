@@ -1,17 +1,46 @@
 @using Frontend.Services
 @inject StorageService Storage
+@inject ApiService Api
+@inject IJSRuntime JS
+
 <div class="first-layer-card first-layer-card-padding-margins">
-    <button class="btn btn-primary" @onclick="Test">Download meme</button>
+    <button class="btn btn-primary" @onclick="GetMeme">Download meme</button>
     <InputText @bind-Value="_downloadMemeName" class="form-control" style="width: unset" placeholder="Name..."/>
 </div>
+
+<script>
+    function triggerFileDownload(fileName, dataUrl) {
+        const link = document.createElement('a');
+        link.href = dataUrl;
+        link.download = fileName;
+
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+</script>
 
 @code {
 
     private string _downloadMemeName = string.Empty;
-    
-    private async Task Test()
+
+    private async Task GetMeme()
     {
-        await Storage.SaveItemToLocalStorageAsync("Test", "piss");
+        var (msg, meme) = await Api.DownloadMemeAsync(_downloadMemeName);
+
+        if (meme == null)
+        {
+            await JS.InvokeVoidAsync("alert", msg);
+            return;
+        }
+
+        var base64Meme = Convert.ToBase64String(meme.FileData);
+        var dataUrl = $"data:{meme.MimeType};base64,{base64Meme}";
+
+        await JS.InvokeVoidAsync("triggerFileDownload", _downloadMemeName, dataUrl);
+
+        await JS.InvokeVoidAsync("alert", msg);
     }
+
 
 }

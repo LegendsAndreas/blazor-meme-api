@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components.Forms;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text.Json;
 using Frontend.Models;
 
 namespace Frontend.Services;
@@ -205,5 +206,54 @@ public class ApiService
             Console.WriteLine(ex);
             return ("Error getting meme: " + ex.Message, null);
         }
+    }
+    
+    public async Task<(string msg, DownloadMemeDto? meme)> DownloadMemeAsync(string memeName)
+    {
+        try
+        {
+            var response = await _httpClient.GetAsync($"memes/download?name={memeName}");
+            if (response.IsSuccessStatusCode)
+            {
+                // A more correct version of this would be to JsonRead it as a DownloadMemeDto, but that might require
+                // that i configure the backend to return the data in a way that can only be read with my config.
+                var fileData = await response.Content.ReadAsByteArrayAsync();
+                var mimeType = response.Content.Headers.ContentType?.ToString();
+                var fileName = response.Content.Headers.ContentDisposition?.FileName?.Trim('"'); // May need to add Content-Disposition header on the server.
+
+                if (fileData == null || fileData.Length == 0)
+                {
+                    return ("Error: Meme file is empty.", null);
+                }
+
+                return ("Successfully downloaded meme!", new DownloadMemeDto
+                {
+                    FileData = fileData,
+                    MimeType = mimeType ?? "application/octet-stream",
+                    FileName = fileName ?? "unknown_name"
+                });
+            }
+
+            var errorDetails = await response.Content.ReadAsStringAsync();
+            return ($"Error getting meme: {response.ReasonPhrase} - {errorDetails}", null);
+
+        }
+        catch (JsonException ex)
+        {
+            Console.WriteLine(ex);
+            return ("Json exception caught getting meme:  " + ex.Message, null);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            return ("Error getting meme: " + ex.Message, null);
+        }
+    }
+    
+    public class DownloadMemeDto
+    {
+        public required byte[] FileData { get; set; }
+        public required string MimeType { get; set; }
+        public required string FileName { get; set; }
     }
 }

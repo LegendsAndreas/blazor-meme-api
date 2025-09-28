@@ -1,3 +1,6 @@
 28-09-25:
 In wwwroot/css/app.css, the css will look after images in the localhost:8080/css/IMAGE_NAME.
 But anywhere else, like if you did a script tag in MainLayout, will just look after localhost:8080/IMAGE_NAME
+
+Bro, downloading a picture is so fucking weird. We literally create a new html a-tag and set the href and download name
+to be the image and then appended and click it with javascript.
