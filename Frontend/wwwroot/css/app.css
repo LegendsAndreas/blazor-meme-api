@@ -7,6 +7,8 @@
 
 html, body {
     font-family: 'FiraRegular', Helvetica, Arial, sans-serif !important;
+    background-image: url('hexellence.png') !important;
+    background-repeat: repeat !important;
     background-color: #00ffff !important;
 }
 
