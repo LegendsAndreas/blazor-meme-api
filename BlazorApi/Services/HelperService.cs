@@ -1,4 +1,5 @@
-﻿using BlazorApi.Models;
+﻿using System.Collections;
+using BlazorApi.Models;
 
 namespace BlazorApi.Services;
 
@@ -18,7 +19,7 @@ public class HelperService
         return contributedUsers;
     }
     
-    public Dictionary<string, int> SetContributedUsers(List<Meme> memes)
+    public Dictionary<string, int> SetContributedUsers(IEnumerable<Meme> memes)
     {
         Dictionary<string,int> contributedUsers = new Dictionary<string, int>();
         foreach (Meme meme in memes)
@@ -32,13 +33,6 @@ public class HelperService
             {
                 contributedUsers.Add(meme.AddedBy, 1);
             }
-            
-            /*Console.WriteLine("Meme added by: "+meme.AddedBy);
-            if (!contributedUsers.TryAdd(string.IsNullOrEmpty(meme.AddedBy) ? "N/A" : meme.AddedBy, 1))
-            {
-                Console.WriteLine("Meme added by 2: "+meme.AddedBy);
-                contributedUsers[meme.AddedBy]++;
-            }*/
         }
         return contributedUsers;
     }

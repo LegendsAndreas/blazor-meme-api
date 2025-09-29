@@ -13,3 +13,15 @@ window.loginHelpers = {
         localStorage.removeItem(name);
     },
 };
+
+window.maxHeight = {
+    add40Height: function (classId) {
+        let uploadSquare = document.querySelector("." + classId);
+        let currentHeight = parseInt(window.getComputedStyle(uploadSquare).height, 10) || 0;
+        uploadSquare.style.height = (currentHeight + 40) + "px";
+    },
+
+    resetHeight: function (classId) {
+        document.querySelector("." + classId).style.height = "251px";
+    }
+}

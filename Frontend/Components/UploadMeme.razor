@@ -5,14 +5,14 @@
 @inject StorageService Storage
 @inject IJSRuntime JS
 
-<div class="first-layer-card first-layer-card-padding-margins">
+<div class="first-layer-card first-layer-card-padding-margins upload-card js-upload-height">
     <label for="uploadMemeInput" class="btn btn-warning mb-2">
         Choose meme
     </label>
     <InputText @bind-Value="@_uploadMemeName" class="form-control" style="width: unset" placeholder="Name..."/>
     <InputFile OnChange="OnInputFileChange" accept="image/*,video/*" id="uploadMemeInput" style="display:none"/>
 
-    <button class="btn btn-warning my-2" @onclick="AddTagToTags">Add tag</button>
+    <button class="btn btn-warning my-2" @onclick="AddTagToTagsAsync">Add tag</button>
     <InputText @bind-Value="_currentTag" class="form-control" style="width: unset" placeholder="Tag..."/>
 
     <button class="btn btn-warning my-2" @onclick="UploadMemeAsync">Upload Meme</button>
@@ -28,7 +28,7 @@
             <video src="@_filePreviewUrl" style="width: 150px" controls></video>
         }
     }
-    
+
     <div>
         @foreach (string tag in _tags)
         {
@@ -36,6 +36,14 @@
         }
     </div>
 </div>
+
+<style>
+    .upload-card {
+        height: 251px;
+        transition: all 0.3s;
+        overflow: hidden;
+    }
+</style>
 
 @code {
 
@@ -46,10 +54,16 @@
     private string? _filePreviewUrl;
     private string? _fileType;
 
-    private void AddTagToTags() => _tags.Add(_currentTag);
+    private async Task AddTagToTagsAsync()
+    {
+        _tags.Add(_currentTag);
+        _currentTag = string.Empty;
+        await JS.InvokeVoidAsync("maxHeight.add40Height", "js-upload-height");
+    }
+
     private void EmptyTags() => _tags = [];
-    
-    private async void OnInputFileChange(InputFileChangeEventArgs e)
+
+    private async Task OnInputFileChange(InputFileChangeEventArgs e)
     {
         _memeImage = e.File;
         _fileType = _memeImage.ContentType;
@@ -87,6 +101,7 @@
             var result = await Api.UploadMemeAsync(_memeImage, _tags, _uploadMemeName, token);
             EmptyTags();
             await JS.InvokeVoidAsync("alert", result);
+            await JS.InvokeVoidAsync("maxHeight.resetHeight", "js-upload-height");
         }
         catch (DbException ex)
         {

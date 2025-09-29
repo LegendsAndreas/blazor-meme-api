@@ -90,11 +90,19 @@ public class MemesController : ControllerBase
     [Route("stats")]
     public async Task<IActionResult> GetMemeStats()
     {
-        var memes = await _context.Memes.ToListAsync();
+        var memes = await _context.Memes.Select(m => new
+        {
+            m.AddedBy,
+            m.Extension
+        }).ToListAsync();
         var helper = new HelperService();
 
         try
         {
+            var contributedUsers = memes
+                .GroupBy(m => string.IsNullOrEmpty(m.AddedBy) ? "N/A" : m.AddedBy)
+                .ToDictionary(g => g.Key, g => g.Count());
+
             MemesStatsDto memeStats = new MemesStatsDto
             {
                 MemesCount = memes.Count,
@@ -103,7 +111,7 @@ public class MemesController : ControllerBase
                 PngCount = memes.Count(m => m.Extension == ".png"),
                 VideosCount = memes.Count(m => m.Extension == ".mp4" || m.Extension == ".webm"),
                 WebpCount = memes.Count(m => m.Extension == ".webp"),
-                ContributedUsers = helper.SetContributedUsers(memes)
+                ContributedUsers = contributedUsers
             };
             return Ok(memeStats);
         }
