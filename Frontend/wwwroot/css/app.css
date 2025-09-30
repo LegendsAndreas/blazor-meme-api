@@ -10,6 +10,17 @@ html, body {
     background-image: url('hexellence.png') !important;
     background-repeat: repeat !important;
     background-color: #00ffff !important;
+    background-position: 0 0;
+    animation: move-bg-right-left 30s linear infinite;
+}
+
+@keyframes move-bg-right-left {
+    from {
+        background-position: 0 0;
+    }
+    to {
+        background-position: 150px 173px;
+    }
 }
 
 .valid.modified:not([type=checkbox]) {
@@ -27,7 +38,7 @@ html, body {
 .first-layer-card {
     border: 2px solid white;
     border-radius: 15px;
-    background: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.2);
     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
     backdrop-filter: blur(110%);
 }
