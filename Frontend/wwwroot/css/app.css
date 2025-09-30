@@ -7,8 +7,8 @@
 
 html, body {
     font-family: 'FiraRegular', Helvetica, Arial, sans-serif !important;
-    background-image: url('hexellence.png') !important;
-    background-repeat: repeat !important;
+    background-image: url('hexellence.png');
+    background-repeat: repeat;
     background-color: #00ffff !important;
     background-position: 0 0;
     animation: move-bg-right-left 30s linear infinite;

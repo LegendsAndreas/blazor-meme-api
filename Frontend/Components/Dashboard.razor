@@ -150,6 +150,8 @@
         {
             _pendingAlertMessage = memesMsg;
             _alertRequested = true;
+            _loadingMemes = false;
+            _loadingTags = false;
             return;
         }
 
@@ -163,6 +165,7 @@
         {
             _pendingAlertMessage = tagsMsg;
             _alertRequested = true;
+            _loadingTags = false;
             return;
         }
 

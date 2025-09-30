@@ -141,6 +141,16 @@ public class ApiService
             return ("Error getting meme stats: " + response.ReasonPhrase + response.Content.ReadAsStringAsync().Result,
                 null);
         }
+        catch (HttpRequestException ex)
+        {
+            Console.WriteLine(ex);
+            return ("Could not connect to the API: " + ex.Message, null);
+        }
+        catch (JsonException ex)
+        {
+            Console.WriteLine(ex);
+            return ("Json exception caught getting meme stats:  " + ex.Message, null);
+        }
         catch (Exception ex)
         {
             Console.WriteLine(ex);
@@ -160,6 +170,11 @@ public class ApiService
             }
 
             return ("Error getting tags stats: " + response.ReasonPhrase, null);
+        }
+        catch (HttpRequestException ex)
+        {
+            Console.WriteLine(ex);
+            return ("Could not connect to the API: " + ex.Message, null);
         }
         catch (Exception ex)
         {
