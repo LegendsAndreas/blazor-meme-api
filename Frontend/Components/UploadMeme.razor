@@ -100,8 +100,11 @@
 
             var result = await Api.UploadMemeAsync(_memeImage, _tags, _uploadMemeName, token);
             EmptyTags();
+            _filePreviewUrl = null;
+            _memeImage = null;
             await JS.InvokeVoidAsync("alert", result);
             await JS.InvokeVoidAsync("maxHeight.resetHeight", "js-upload-height");
+            StateHasChanged();
         }
         catch (DbException ex)
         {

@@ -74,6 +74,8 @@ public class Program
                     policyBuilder
                         .WithOrigins(
                             Configuration["Origin"],
+                            "https://localhost:5273",
+                            "https://localhost:8080",
                             "https://localhost:7231"
                         )
                         .AllowAnyMethod()

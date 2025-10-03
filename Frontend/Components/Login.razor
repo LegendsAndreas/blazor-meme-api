@@ -7,7 +7,6 @@
 <div class="first-layer-card first-layer-card-padding-margins">
     <EditForm Model="@_logOnDto" OnValidSubmit="LogInUser">
         <DataAnnotationsValidator/>
-        <ValidationSummary/>
         <div>
             <label>
                 Email
@@ -29,6 +28,12 @@
         {
             <button class="btn btn-primary mt-2" type="submit">Login</button>
         }
+        <div class="js-login-validation">
+            <ValidationSummary/>
+        </div>
+        <div class="dummy-validation-content js-login-dummy-validation">
+
+        </div>
     </EditForm>
 </div>
 
