@@ -35,7 +35,11 @@
 
 <Dashboard/>
 
-@code {
-
-    private string _alertMessage;
+@code
+{
+    // Change it to min-height instead of just height.
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await JS.InvokeVoidAsync("maxHeight.equalHeight");
+    }
 }

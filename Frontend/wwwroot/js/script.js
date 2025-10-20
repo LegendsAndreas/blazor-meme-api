@@ -23,5 +23,22 @@ window.maxHeight = {
 
     resetHeight: function (classId) {
         document.querySelector("." + classId).style.height = "251px";
+    },
+
+    equalHeight: function (classId) {
+        let equalHeightElms = document.querySelectorAll(".js-equal-height-element");
+
+        let highestElm = 0;
+        equalHeightElms.forEach(element => {
+            if (element.offsetHeight > highestElm) {
+                console.log("New record height: " + element.offsetHeight);
+                highestElm = element.offsetHeight;
+            }
+            console.log("Height: "+element.offsetHeight);
+        })
+        
+        equalHeightElms.forEach(element => {
+            element.style.minHeight = highestElm + "px";
+        })
     }
 }

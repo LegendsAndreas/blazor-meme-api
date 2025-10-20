@@ -6,6 +6,10 @@
 @inject NavigationManager Navigation
 
 <div class="container">
+    @if (_loadingMemes)
+    {
+        <Loading/>
+    }
     <div class="row">
         @foreach (Meme meme in _memesPage)
         {
@@ -41,11 +45,12 @@
 @code {
 
     private int _currentPage;
+    private bool _loadingMemes;
     private List<Meme> _memesPage = [];
 
     protected override async Task OnInitializedAsync()
     {
-        // Parse the query string "page" parameter
+        _loadingMemes = true;
         var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
         if (Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query)
                 .TryGetValue("page", out var pageString) && int.TryParse(pageString, out int pageValue))
@@ -54,10 +59,11 @@
         }
         else
         {
-            _currentPage = 1; // Default to 1 if "page" not specified
+            _currentPage = 1;
         }
 
         await GetMemes();
+        _loadingMemes = false;
     }
 
     private async Task GetMemes()

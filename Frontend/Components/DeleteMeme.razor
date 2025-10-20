@@ -3,7 +3,7 @@
 @inject IJSRuntime JS
 @inject ApiService Api
 
-<div class="first-layer-card first-layer-card-padding-margins">
+<div class="first-layer-card first-layer-card-padding-margins js-equal-height-element">
     <button class="btn btn-danger" @onclick="DeleteMemeAsync">Delete meme (ID)</button>
     <InputNumber @bind-Value="_deleteMemeId" class="form-control" style="width: unset" placeholder="ID..."/>
 </div>

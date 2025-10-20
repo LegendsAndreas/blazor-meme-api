@@ -3,7 +3,7 @@
 @inject ApiService Api
 @inject IJSRuntime JS
 
-<div class="first-layer-card first-layer-card-padding-margins">
+<div class="first-layer-card first-layer-card-padding-margins js-equal-height-element">
     <button class="btn btn-primary" @onclick="GetMeme">Download meme</button>
     <InputText @bind-Value="_downloadMemeName" class="form-control" style="width: unset" placeholder="Name..."/>
 </div>

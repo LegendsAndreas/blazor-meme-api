@@ -15,7 +15,7 @@
 
     let slideoutContent = document.querySelector(".js-click-anywhere-else");
 
-    document.addEventListener("click", function(event) {
+    document.addEventListener("click", function (event) {
         if (!slideoutContent.contains(event.target) && !slideoutButton.contains(event.target) && slideout.classList.contains("active")) {
             slideout.classList.remove("active");
         }
@@ -25,19 +25,33 @@
 window.adminSlider = {
     toggleAdminSlider: function () {
         let slideout = document.querySelector(".js-slideout");
+        
+        if (!slideout) {
+            console.log("Slideout not found");
+            return;
+        }
+        
         slideout.classList.toggle("active");
     },
-    closeAdminSlider: function () {
+    closeAdminSliderInit: function () {
         let slideout = document.querySelector(".js-slideout");
         let slideoutButton = document.querySelector(".js-slideout-button");
         let slideoutContent = document.querySelector(".js-click-anywhere-else");
 
-        document.addEventListener("click", function(event) {
+        if (!slideout || !slideoutButton || !slideoutContent) {
+            // Optionally, you can log which elements are missing for easier debugging
+            console.warn("One or more slideout elements are missing:", {
+                slideout,
+                slideoutButton,
+                slideoutContent
+            });
+            return;
+        }
+        
+        document.addEventListener("click", function (event) {
             if (!slideoutContent.contains(event.target) && !slideoutButton.contains(event.target) && slideout.classList.contains("active")) {
                 slideout.classList.remove("active");
-            } else {
-                console.log("Not active");
-            }
+            } 
         });
     }
 }
